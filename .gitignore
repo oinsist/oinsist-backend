@@ -1,0 +1,140 @@
+# ===========================================================
+# oinsist-backend .gitignore
+# 适用栈：Java 21 + Maven + Spring Boot 3.5 + IntelliJ IDEA
+# 原则：只忽略「构建产物 / 本地配置 / 敏感信息」，源码与 POM 必须入库
+# ===========================================================
+
+
+# -------------------------------
+# 一、Maven 构建产物
+# -------------------------------
+# 所有模块的编译输出目录，由 mvn clean 重建即可，不应入库
+target/
+**/target/
+
+# Maven 的 flatten 插件（${revision} 占位符场景）会生成 .flattened-pom.xml
+.flattened-pom.xml
+**/.flattened-pom.xml
+
+# Maven 包装器自带的本地 jar，按团队约定决定是否提交；这里默认忽略
+.mvn/wrapper/maven-wrapper.jar
+
+# 依赖下载缓存（非默认位置时使用者自行定制）
+.m2/
+
+
+# -------------------------------
+# 二、Java 编译 / 运行产物
+# -------------------------------
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# JVM 崩溃日志
+hs_err_pid*.log
+replay_pid*.log
+
+
+# -------------------------------
+# 三、Spring Boot 运行时产物
+# -------------------------------
+# 本地启动产生的日志（生产环境日志请通过日志框架输出到固定目录）
+logs/
+*.log
+*.log.*
+
+# Spring Boot DevTools 触发热重载的标记文件
+.spring-boot-devtools.properties
+
+# 本地敏感配置：包含数据库、Redis、JWT 密钥等真实凭据，严禁入库
+# 团队约定通过 application-{env}.yml 提交模板，本地放 application-local.yml
+application-local.yml
+application-local.yaml
+application-local.properties
+application-prod.yml
+application-prod.yaml
+
+
+# -------------------------------
+# 四、IntelliJ IDEA
+# -------------------------------
+# 仅保留少量必要的项目级配置，其余 IDE 私有文件全部忽略
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# IDEA 自动生成的 HTTP Client 临时文件
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
+
+
+# -------------------------------
+# 五、Eclipse / VSCode（兼容多 IDE 团队）
+# -------------------------------
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.vscode/
+*.code-workspace
+
+
+# -------------------------------
+# 六、操作系统垃圾文件
+# -------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.nfs*
+
+
+# -------------------------------
+# 七、本地开发临时文件
+# -------------------------------
+# 本地脚本、调试笔记、临时 SQL
+scratch/
+tmp/
+temp/
+*.bak
+*.swp
+*.swo
+
+# 环境变量本地副本（含密钥）
+.env
+.env.local
+.env.*.local
+
+
+# -------------------------------
+# 八、安全相关（密钥/证书）
+# -------------------------------
+# 任何形式的密钥文件都必须忽略，避免泄露到公开仓库
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.truststore
+
+AGENTS.md

@@ -21,8 +21,8 @@
     <!--
         【根工程坐标】
         packaging=pom 表示本模块本身不产出 jar，仅作为聚合 + 依赖管理的"父容器"。
-        version 使用 ${revision} 占位符，配合 flatten-maven-plugin 或 CI 变量统一管控版本号，
-        是 RuoYi-Vue-Plus 等多模块项目推荐的"单一版本源"实践。
+        version 使用 ${revision} 占位符统一管控版本号，
+        是多模块项目中常见的"单一版本源"实践。
     -->
     <groupId>com.oinsist</groupId>
     <artifactId>oinsist-backend</artifactId>
@@ -37,14 +37,12 @@
         采用"高内聚、低耦合"的四层划分，依赖方向严格自上而下：
           admin     → 启动 + Controller 出口层（仅暴露 HTTP 接口、装配 Spring Boot 主类）
           system    → RBAC 等核心业务（用户、角色、部门、菜单）
-          framework → 系统底层基建（Sa-Token、MP 拦截器、Redisson、AOP、全局异常）
-          common    → 公共能力聚合层，内部继续拆分 common-core 等子模块
-        这种分层使"业务可换、框架可替、工具最稳"，便于教学拆解每一层职责。
+          common    → 公共能力聚合层，内部继续拆分 common-core、common-web 等子模块
+        这种分层使"业务可换、基础能力可复用、启动层保持轻量"，便于教学拆解每一层职责。
     -->
     <modules>
         <module>oinsist-admin</module>
         <module>oinsist-common</module>
-<!--        <module>oinsist-framework</module>-->
         <module>oinsist-system</module>
     </modules>
 
@@ -54,7 +52,7 @@
         升级依赖时仅需修改此处，避免散落式修改造成的版本不一致问题。
     -->
     <properties>
-        <!-- 工程统一版本号占位符，配合 flatten 插件做版本透传 -->
+        <!-- 工程统一版本号占位符，供父子模块共享同一个版本号 -->
         <revision>1.0.0-SNAPSHOT</revision>
         <!-- Java 21：长期支持版本，可使用虚拟线程、Switch 模式匹配等现代语言特性 -->
         <java.version>21</java.version>
@@ -97,11 +95,6 @@
             <dependency>
                 <groupId>com.oinsist</groupId>
                 <artifactId>oinsist-common-web</artifactId>
-                <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.oinsist</groupId>
-                <artifactId>oinsist-framework</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

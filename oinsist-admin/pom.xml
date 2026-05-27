@@ -13,7 +13,7 @@
           3) 通过 Maven 依赖将所有业务模块"组装"进一个可执行 fat jar
         不在此模块编写任何业务逻辑或底层配置，这样做的好处是：
         如果将来需要替换 HTTP 协议（如改为 gRPC、WebFlux），只需替换 admin 层，
-        业务逻辑（system）和底层基建（framework）完全不受影响。
+        业务逻辑（system）和公共基础能力（common-*）完全不受影响。
     -->
     <parent>
         <groupId>com.oinsist</groupId>

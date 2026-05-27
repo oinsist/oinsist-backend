@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        【父工程指向根 POM】
+        oinsist-system 是一级业务模块，直接挂载在根 POM 下（与 oinsist-common 平级）。
+        这样设计而非嵌套在 common 内部，是因为 system 承载的是"具体业务逻辑"（RBAC 等），
+        而 common 是"无业务依赖的纯工具层"。分层边界明确后，
+        后续新增 oinsist-xxx 业务模块时只需平级放置，不会污染 common 的纯洁性。
+    -->
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-backend</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-system</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-system</name>
+    <description>
+        RBAC 权限等核心业务模块。
+        承载用户、角色、部门、菜单、系统配置等实体的 Service / Mapper 层逻辑。
+        Controller 层不在此模块，而是由 oinsist-admin 通过依赖本模块来暴露 HTTP 接口，
+        从而实现"业务逻辑与 HTTP 入口解耦"——更换接口协议（如 gRPC）时只需替换 admin 层。
+    </description>
+
+    <dependencies>
+        <!--
+            【依赖 common-core】
+            system 模块的 Service 层需要使用基础常量、枚举、工具类等公共能力。
+            但 system 不应该直接依赖 common-web（Spring MVC），
+            因为 Service 层不关心 HTTP 协议细节——这个职责属于 admin 模块。
+            遵循"最小依赖原则"：只引入当前层真正需要的东西。
+        -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-core</artifactId>
+        </dependency>
+
+        <!--
+            【Spring Context】
+            system 模块需要 Spring IoC 容器的能力（@Service、@Autowired 等注解），
+            但不需要完整的 Web 运行时（Tomcat、MVC 等）。
+            spring-boot-starter 提供了 IoC + 自动配置 + 日志的最小化组合，
+            不会引入嵌入式服务器，保持 system 模块的"纯业务"定位。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-common</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-common-core</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-common-core</name>
+    <description>基础常量、枚举与无业务依赖的核心公共能力</description>
+
+    <!--
+        【编译版本说明】
+        本模块不再单独声明 maven-compiler-plugin 的 source/target，
+        统一继承根 POM 中的 maven.compiler.release=${java.version}（当前为 21）。
+        原因：子模块若强行写 source=8/target=8，会与父级 release=21 冲突，
+        IDE 解析时可能回退到极低的 language level，导致 lambda、Stream 等被误标红。
+    -->
+</project>

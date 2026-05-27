@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-common</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-common-web</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-common-web</name>
+    <description>Web 层公共配置与跨模块扩展点</description>
+
+    <dependencies>
+        <!--
+            引入 Spring MVC 基础能力。
+
+            这个模块的职责不是承载具体业务 Controller，而是沉淀所有 Web 边界层的通用能力：
+            例如后续的全局异常处理、参数校验错误收敛、拦截器注册、跨域策略、消息转换器扩展等。
+
+            使用 spring-boot-starter-web 的原因：
+            1. 它由 Spring Boot 官方维护，能自动带入 Spring MVC、Jackson、内置 Tomcat 等 Web 运行时依赖；
+            2. 版本由根 POM 的 spring-boot-starter-parent 统一仲裁，避免手动拼装 Spring MVC 组件造成版本冲突；
+            3. 后续 admin 启动模块只要依赖 common-web，就能复用这些 Web 基础设施。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+</project>

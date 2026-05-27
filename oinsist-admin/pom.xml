@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        【父工程指向根 POM】
+        admin 模块是整个应用的"启动出口"，与 common、system 平级挂载在根 POM 下。
+        它的职责非常明确：只做三件事——
+          1) 承载 Spring Boot 主启动类
+          2) 暴露对外 HTTP Controller
+          3) 通过 Maven 依赖将所有业务模块"组装"进一个可执行 fat jar
+        不在此模块编写任何业务逻辑或底层配置，这样做的好处是：
+        如果将来需要替换 HTTP 协议（如改为 gRPC、WebFlux），只需替换 admin 层，
+        业务逻辑（system）和底层基建（framework）完全不受影响。
+    -->
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-backend</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-admin</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-admin</name>
+    <description>
+        应用启动入口与 Controller 出口层。
+        本模块通过依赖聚合的方式，将 common（工具层）、system（业务层）组装为一个可运行的 Spring Boot 应用。
+        所有对外暴露的 HTTP 接口都应定义在本模块的 controller 包下。
+    </description>
+
+    <dependencies>
+        <!--
+            【依赖 common-core：基础工具能力】
+            提供全局常量、枚举、工具类等无业务依赖的公共设施。
+            admin 模块的 Controller 在做参数校验、常量引用时会直接用到这些能力。
+        -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-core</artifactId>
+        </dependency>
+
+        <!--
+            【依赖 common-web：Web 基础设施】
+            这个依赖会传递引入 spring-boot-starter-web（内含 Spring MVC + 嵌入式 Tomcat + Jackson）。
+            同时 common-web 内部沉淀了全局异常处理、跨域配置、拦截器注册等 Web 层公共能力。
+            admin 模块不需要重复声明 spring-boot-starter-web，直接复用 common-web 的传递依赖即可。
+            这也是 RuoYi-Vue-Plus 的做法——Web 配置集中在公共层，启动模块只负责组装。
+        -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-web</artifactId>
+        </dependency>
+
+        <!--
+            【依赖 system：核心业务逻辑】
+            system 模块包含 RBAC（用户、角色、部门、菜单）等核心 Service 层实现。
+            admin 通过引入此依赖，使得 system 中所有标注了 @Service 的 Bean
+            都能被 Spring IoC 容器发现并注入到 Controller 中。
+            这种"Controller 在 admin、Service 在 system"的分离设计，
+            使得业务逻辑的修改不会触发 Controller 层的重新编译，提升开发效率。
+        -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-system</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                【Spring Boot Maven 打包插件】
+                该插件在 package 阶段执行 repackage 目标，会将所有依赖打入一个"可执行 fat jar"。
+                不加这个插件，mvn package 产出的只是一个普通 jar（不含依赖），无法直接 java -jar 运行。
+                版本由根 POM 的 pluginManagement 统一仲裁，此处无需写 version。
+                注意：只有 admin 模块需要此插件，其他模块（common、system）作为库被引用，不应打 fat jar。
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -38,13 +38,13 @@
           admin     → 启动 + Controller 出口层（仅暴露 HTTP 接口、装配 Spring Boot 主类）
           system    → RBAC 等核心业务（用户、角色、部门、菜单）
           framework → 系统底层基建（Sa-Token、MP 拦截器、Redisson、AOP、全局异常）
-          common    → 纯工具类、常量、统一响应模型（禁止包含任何业务逻辑）
+          common    → 公共能力聚合层，内部继续拆分 common-core 等子模块
         这种分层使"业务可换、框架可替、工具最稳"，便于教学拆解每一层职责。
     -->
     <modules>
         <module>oinsist-admin</module>
         <module>oinsist-common</module>
-        <module>oinsist-framework</module>
+<!--        <module>oinsist-framework</module>-->
         <module>oinsist-system</module>
     </modules>
 
@@ -91,7 +91,12 @@
             <!-- ============ 内部模块互相引用时的版本声明 ============ -->
             <dependency>
                 <groupId>com.oinsist</groupId>
-                <artifactId>oinsist-common</artifactId>
+                <artifactId>oinsist-common-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oinsist</groupId>
+                <artifactId>oinsist-common-web</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

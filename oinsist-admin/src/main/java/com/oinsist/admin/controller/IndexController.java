@@ -1,5 +1,6 @@
 package com.oinsist.admin.controller;
 
+import com.oinsist.common.core.domain.R;
 import com.oinsist.system.service.SysConfigService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 这种分离使得同一套业务逻辑可以被不同的入口（REST API、RPC、定时任务）复用，
  * 而不需要修改 system 模块的任何代码。
  * </p>
+ *
  */
 @RestController
 public class IndexController {
@@ -58,11 +60,11 @@ public class IndexController {
      *
      * <p>调用示例：{@code GET http://localhost:8080/}</p>
      *
-     * @return 简单的欢迎信息，证明 Spring MVC 路由正常工作
+     * @return 统一响应体，包含欢迎信息
      */
     @GetMapping("/")
-    public String index() {
-        return "OInsist Backend is running!";
+    public R<String> index() {
+        return R.ok("OInsist Backend is running!");
     }
 
     /**
@@ -81,10 +83,10 @@ public class IndexController {
      * </p>
      *
      * @param key 要查询的配置项 Key
-     * @return 配置项的值
+     * @return 统一响应体，包含配置项的值
      */
     @GetMapping("/config")
-    public String getConfig(@RequestParam(defaultValue = "sys.index.title") String key) {
-        return sysConfigService.getConfigValue(key);
+    public R<String> getConfig(@RequestParam(defaultValue = "sys.index.title") String key) {
+        return R.ok(sysConfigService.getConfigValue(key));
     }
 }

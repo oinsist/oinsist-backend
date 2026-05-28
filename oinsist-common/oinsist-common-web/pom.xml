@@ -33,5 +33,37 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <!--
+            引入公共核心模块。
+
+            GlobalExceptionHandler 需要使用 common-core 中的统一响应体 R、响应码枚举 ResultCode、
+            以及业务异常 ServiceException。将这层依赖显式声明，保证 Web 基础设施能正确引用基础类型。
+        -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-core</artifactId>
+        </dependency>
+
+        <!--
+            引入参数校验基础能力。
+
+            从 Spring Boot 2.3 开始，spring-boot-starter-web 不再自动引入 validation starter。
+            没有它，Controller 方法上的 @Valid / @Validated 以及 @NotBlank、@Size 等 jakarta.validation 注解
+            不会真正触发校验逻辑，参数会直接放行，校验形同虚设。
+            显式引入后，Spring MVC 的参数解析器才会在绑定阶段执行 JSR-380 校验，
+            并在失败时抛出对应的异常交由 GlobalExceptionHandler 处理。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Lombok：编译期注解处理器，用于自动生成日志字段等样板代码，不进入运行时 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

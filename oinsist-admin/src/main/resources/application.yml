@@ -16,3 +16,7 @@ spring:
     # 应用名称：会出现在日志、Actuator、服务注册中心等多处，
     # 是微服务/单体应用的"身份标识"，建议与 Maven artifactId 保持语义一致。
     name: oinsist-admin
+  profiles:
+    # 激活 dev Profile，使 @Profile("dev") 标注的测试 Controller 等组件生效。
+    # 生产部署时通过启动参数 --spring.profiles.active=prod 覆盖即可。
+    active: dev

@@ -31,11 +31,6 @@ public record R<T>(int code, String msg, T data) implements Serializable {
     public static final int FAIL = 500;
 
     /**
-     * 参数校验失败。
-     */
-    public static final int BAD_REQUEST = 400;
-
-    /**
      * 默认成功消息。
      */
     public static final String SUCCESS_MSG = "操作成功";
@@ -53,10 +48,6 @@ public record R<T>(int code, String msg, T data) implements Serializable {
         return new R<>(SUCCESS, SUCCESS_MSG, data);
     }
 
-    public static <T> R<T> ok(String msg, T data) {
-        return new R<>(SUCCESS, msg, data);
-    }
-
     public static <T> R<T> fail() {
         return fail(FAIL_MSG);
     }
@@ -69,7 +60,13 @@ public record R<T>(int code, String msg, T data) implements Serializable {
         return new R<>(code, msg, null);
     }
 
-    public static <T> R<T> badRequest(String msg) {
-        return new R<>(BAD_REQUEST, msg, null);
+    /**
+     * 判断当前响应是否为成功状态。
+     *
+     * <p>封装此方法避免调用方到处写 {@code r.code() == R.SUCCESS} 这样的魔法数字比较，
+     * 同时如果未来成功判定逻辑发生变化（如增加状态码区间），只需修改此处即可。</p>
+     */
+    public boolean isSuccess() {
+        return code == SUCCESS;
     }
 }

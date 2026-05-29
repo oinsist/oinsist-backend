@@ -42,6 +42,12 @@
             <artifactId>oinsist-common-core</artifactId>
         </dependency>
 
+        <!-- MyBatis-Plus 持久层基础能力（分页、自动填充、逻辑删除） -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-mybatis</artifactId>
+        </dependency>
+
         <!--
             【Spring Context】
             system 模块需要 Spring IoC 容器的能力（@Service、@Autowired 等注解），
@@ -52,6 +58,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Lombok：编译期代码生成，用于实体类的 @Data 等注解 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

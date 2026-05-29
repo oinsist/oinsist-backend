@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-common</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-common-mybatis</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-common-mybatis</name>
+    <description>MyBatis-Plus 持久层基础能力（分页、自动填充、逻辑删除）</description>
+
+    <dependencies>
+        <!-- 内部核心模块：提供基础常量、枚举、通用工具等公共能力 -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-core</artifactId>
+        </dependency>
+
+        <!--
+            MyBatis-Plus Spring Boot 3 Starter：
+            基于 Jakarta 命名空间的 ORM 增强框架，提供 CRUD、分页、乐观锁等开箱即用能力。
+            版本由根 POM dependencyManagement 统一仲裁，此处不写 version。
+        -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        </dependency>
+
+        <!--
+            JSqlParser：MyBatis-Plus 分页插件、多租户插件、数据权限插件的 SQL 解析引擎。
+            MP 3.5.16 起不再自动传递此依赖，需要显式声明。
+        -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+        </dependency>
+
+        <!-- Lombok：编译期代码生成，不传递给下游 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

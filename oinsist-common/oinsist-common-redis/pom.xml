@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-common</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-common-redis</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-common-redis</name>
+    <description>Redis、Redisson、Spring Cache 基础能力（连接管理、缓存、分布式锁）</description>
+
+    <dependencies>
+        <!-- 基础常量、工具类 -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-core</artifactId>
+        </dependency>
+
+        <!-- Redisson：Redis 客户端 + 分布式锁 + Spring Cache 集成 -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Redisson Spring Cache：4.x 起 Spring Cache 实现已迁移至独立模块，需显式引入 -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-cache</artifactId>
+        </dependency>
+
+        <!-- Spring Cache 抽象层 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

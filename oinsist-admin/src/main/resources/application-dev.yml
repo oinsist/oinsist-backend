@@ -1,0 +1,25 @@
+# ==================== 开发环境配置 ====================
+# 仅在 dev profile 下生效，生产环境不加载此文件
+
+# SQL 日志：仅输出 Mapper 层 SQL（收窄到 mapper 包，避免全局 debug 噪声）
+logging:
+  level:
+    com.oinsist.system.mapper: debug
+
+# ==================== Redis 连接配置 ====================
+# redisson-spring-boot-starter 自动读取 spring.data.redis.* 创建 RedissonClient
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 3000ms
+      connect-timeout: 3000ms
+
+# ==================== 缓存配置 ====================
+# 开发环境缓存 TTL 较短，便于调试
+oinsist:
+  cache:
+    ttl: 30m
+    max-idle-time: 15m

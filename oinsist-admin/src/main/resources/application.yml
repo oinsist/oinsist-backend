@@ -20,3 +20,29 @@ spring:
     # 激活 dev Profile，使 @Profile("dev") 标注的测试 Controller 等组件生效。
     # 生产部署时通过启动参数 --spring.profiles.active=prod 覆盖即可。
     active: dev
+
+  # ==================== 数据源配置 ====================
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/oinsist
+    username: postgres
+    password: postgres
+
+# ==================== MyBatis-Plus 配置 ====================
+mybatis-plus:
+  # Mapper XML 文件路径（支持多模块扫描）
+  mapper-locations: classpath*:mapper/**/*.xml
+  global-config:
+    db-config:
+      # 主键策略：雪花算法（分布式唯一ID，不依赖数据库自增）
+      id-type: assign_id
+      # 逻辑删除字段名（与 BaseEntity.deleted 对应）
+      logic-delete-field: deleted
+      # 逻辑删除值（1=已删除）
+      logic-delete-value: 1
+      # 逻辑未删除值（0=未删除）
+      logic-not-delete-value: 0
+  configuration:
+    # 开启驼峰命名映射（数据库下划线 -> Java驼峰）
+    map-underscore-to-camel-case: true
+

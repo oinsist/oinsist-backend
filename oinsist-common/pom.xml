@@ -21,5 +21,7 @@
     <modules>
         <module>oinsist-common-core</module>
         <module>oinsist-common-web</module>
+        <module>oinsist-common-mybatis</module>
+        <module>oinsist-common-redis</module>
     </modules>
 </project>

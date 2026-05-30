@@ -3,6 +3,8 @@ package com.oinsist.admin.controller;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.oinsist.common.core.domain.R;
+import com.oinsist.common.log.annotation.OperLog;
+import com.oinsist.common.log.enums.BusinessType;
 import com.oinsist.common.mybatis.domain.PageQuery;
 import com.oinsist.common.mybatis.domain.PageResult;
 import com.oinsist.system.domain.SysConfig;
@@ -38,6 +40,7 @@ public class SysConfigController {
      * createTime 和 updateTime 由 MybatisMetaObjectHandler 自动填充。
      * </p>
      */
+    @OperLog(title = "参数配置", businessType = BusinessType.INSERT)
     @PostMapping
     public R<SysConfig> add(@RequestBody SysConfig sysConfig) {
         sysConfigMapper.insert(sysConfig);
@@ -65,6 +68,7 @@ public class SysConfigController {
      * 而是执行 UPDATE sys_config SET deleted=1 WHERE config_id=? AND deleted=0。
      * </p>
      */
+    @OperLog(title = "参数配置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable Long id) {
         sysConfigMapper.deleteById(id);

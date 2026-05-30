@@ -23,3 +23,5 @@ oinsist:
   cache:
     ttl: 30m
     max-idle-time: 15m
+  crypto:
+    aes-key: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

@@ -24,6 +24,12 @@
             <artifactId>oinsist-common-core</artifactId>
         </dependency>
 
+        <!-- 加解密基础能力：EncryptTypeHandler 依赖 TextEncryptor -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-crypto</artifactId>
+        </dependency>
+
         <!--
             MyBatis-Plus Spring Boot 3 Starter：
             基于 Jakarta 命名空间的 ORM 增强框架，提供 CRUD、分页、乐观锁等开箱即用能力。
@@ -48,6 +54,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- 测试：JUnit 5 + Mockito -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

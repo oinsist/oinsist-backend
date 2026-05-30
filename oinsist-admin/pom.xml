@@ -86,6 +86,12 @@
             <artifactId>oinsist-common-satoken</artifactId>
         </dependency>
 
+        <!-- 操作日志能力（@OperLog 注解 + AOP 切面） -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-log</artifactId>
+        </dependency>
+
         <!-- PostgreSQL JDBC 驱动（仅运行时需要） -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -98,6 +104,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!-- 测试：JUnit 5 + Mockito + MockMvc + Spring Test 上下文 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

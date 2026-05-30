@@ -2,6 +2,8 @@ package com.oinsist.admin.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.oinsist.common.core.domain.R;
+import com.oinsist.common.log.annotation.OperLog;
+import com.oinsist.common.log.enums.BusinessType;
 import com.oinsist.common.mybatis.domain.PageQuery;
 import com.oinsist.common.mybatis.domain.PageResult;
 import com.oinsist.system.domain.dto.SysRoleAddDto;
@@ -41,6 +43,7 @@ public class SysRoleController {
 
     /** 新增角色 */
     @SaCheckPermission("system:role:add")
+    @OperLog(title = "角色管理", businessType = BusinessType.INSERT)
     @PostMapping
     public R<Void> add(@Valid @RequestBody SysRoleAddDto dto) {
         sysRoleService.addRole(dto);
@@ -49,6 +52,7 @@ public class SysRoleController {
 
     /** 修改角色 */
     @SaCheckPermission("system:role:edit")
+    @OperLog(title = "角色管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public R<Void> edit(@Valid @RequestBody SysRoleEditDto dto) {
         sysRoleService.editRole(dto);
@@ -57,6 +61,7 @@ public class SysRoleController {
 
     /** 删除角色 */
     @SaCheckPermission("system:role:remove")
+    @OperLog(title = "角色管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{roleId}")
     public R<Void> remove(@PathVariable Long roleId) {
         sysRoleService.deleteRole(roleId);
@@ -65,6 +70,7 @@ public class SysRoleController {
 
     /** 分配菜单 */
     @SaCheckPermission("system:role:assignMenu")
+    @OperLog(title = "角色管理", businessType = BusinessType.GRANT)
     @PutMapping("/{roleId}/assignMenu")
     public R<Void> assignMenu(@PathVariable Long roleId, @RequestBody List<Long> menuIds) {
         sysRoleService.assignMenus(roleId, menuIds);

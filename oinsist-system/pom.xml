@@ -48,6 +48,18 @@
             <artifactId>oinsist-common-mybatis</artifactId>
         </dependency>
 
+        <!-- 加解密注解：SysUser 字段使用 @EncryptField、@Sensitive -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-crypto</artifactId>
+        </dependency>
+
+        <!-- 操作日志模块：提供 OperLogEvent 事件对象，由本模块监听并持久化 -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-log</artifactId>
+        </dependency>
+
         <!--
             【依赖 common-satoken】
             SysLoginService 需要调用 LoginHelper 执行登录/退出操作，

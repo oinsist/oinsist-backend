@@ -24,5 +24,7 @@
         <module>oinsist-common-mybatis</module>
         <module>oinsist-common-redis</module>
         <module>oinsist-common-satoken</module>
+        <module>oinsist-common-log</module>
+        <module>oinsist-common-crypto</module>
     </modules>
 </project>

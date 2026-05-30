@@ -2,6 +2,8 @@ package com.oinsist.admin.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.oinsist.common.core.domain.R;
+import com.oinsist.common.log.annotation.OperLog;
+import com.oinsist.common.log.enums.BusinessType;
 import com.oinsist.system.domain.SysMenu;
 import com.oinsist.system.domain.dto.SysMenuAddDto;
 import com.oinsist.system.domain.dto.SysMenuEditDto;
@@ -39,6 +41,7 @@ public class SysMenuController {
 
     /** 新增菜单 */
     @SaCheckPermission("system:menu:add")
+    @OperLog(title = "菜单管理", businessType = BusinessType.INSERT)
     @PostMapping
     public R<Void> add(@Valid @RequestBody SysMenuAddDto dto) {
         sysMenuService.addMenu(dto);
@@ -47,6 +50,7 @@ public class SysMenuController {
 
     /** 修改菜单 */
     @SaCheckPermission("system:menu:edit")
+    @OperLog(title = "菜单管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public R<Void> edit(@Valid @RequestBody SysMenuEditDto dto) {
         sysMenuService.editMenu(dto);
@@ -55,6 +59,7 @@ public class SysMenuController {
 
     /** 删除菜单 */
     @SaCheckPermission("system:menu:remove")
+    @OperLog(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{menuId}")
     public R<Void> remove(@PathVariable Long menuId) {
         sysMenuService.deleteMenu(menuId);

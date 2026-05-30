@@ -116,6 +116,16 @@
             </dependency>
             <dependency>
                 <groupId>com.oinsist</groupId>
+                <artifactId>oinsist-common-log</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oinsist</groupId>
+                <artifactId>oinsist-common-crypto</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oinsist</groupId>
                 <artifactId>oinsist-system</artifactId>
                 <version>${revision}</version>
             </dependency>

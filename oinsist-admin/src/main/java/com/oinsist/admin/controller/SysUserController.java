@@ -2,6 +2,8 @@ package com.oinsist.admin.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.oinsist.common.core.domain.R;
+import com.oinsist.common.log.annotation.OperLog;
+import com.oinsist.common.log.enums.BusinessType;
 import com.oinsist.common.mybatis.domain.PageQuery;
 import com.oinsist.common.mybatis.domain.PageResult;
 import com.oinsist.system.domain.dto.SysUserAddDto;
@@ -41,6 +43,7 @@ public class SysUserController {
 
     /** 新增用户 */
     @SaCheckPermission("system:user:add")
+    @OperLog(title = "用户管理", businessType = BusinessType.INSERT)
     @PostMapping
     public R<Void> add(@Valid @RequestBody SysUserAddDto dto) {
         sysUserService.addUser(dto);
@@ -49,6 +52,7 @@ public class SysUserController {
 
     /** 修改用户 */
     @SaCheckPermission("system:user:edit")
+    @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PutMapping
     public R<Void> edit(@Valid @RequestBody SysUserEditDto dto) {
         sysUserService.editUser(dto);
@@ -57,6 +61,7 @@ public class SysUserController {
 
     /** 删除用户 */
     @SaCheckPermission("system:user:remove")
+    @OperLog(title = "用户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userId}")
     public R<Void> remove(@PathVariable Long userId) {
         sysUserService.deleteUser(userId);
@@ -65,6 +70,7 @@ public class SysUserController {
 
     /** 分配角色 */
     @SaCheckPermission("system:user:assignRole")
+    @OperLog(title = "用户管理", businessType = BusinessType.GRANT)
     @PutMapping("/{userId}/assignRole")
     public R<Void> assignRole(@PathVariable Long userId, @RequestBody List<Long> roleIds) {
         sysUserService.assignRoles(userId, roleIds);

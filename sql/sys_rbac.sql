@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS sys_user (
     nickname     VARCHAR(64)  NOT NULL DEFAULT '',
     password     VARCHAR(200) NOT NULL DEFAULT '',
     status       VARCHAR(1)   NOT NULL DEFAULT '0',
+    dept_id      BIGINT,
     create_by    BIGINT,
     create_time  TIMESTAMP,
     update_by    BIGINT,
@@ -23,6 +24,9 @@ COMMENT ON COLUMN sys_user.username IS '用户账号';
 COMMENT ON COLUMN sys_user.nickname IS '用户昵称';
 COMMENT ON COLUMN sys_user.password IS '密码（BCrypt加密）';
 COMMENT ON COLUMN sys_user.status IS '状态（0正常 1停用）';
+-- P07 数据权限迁移：确保旧库新增字段存在
+ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS dept_id BIGINT;
+COMMENT ON COLUMN sys_user.dept_id IS '所属部门ID';
 COMMENT ON COLUMN sys_user.create_by IS '创建者';
 COMMENT ON COLUMN sys_user.create_time IS '创建时间';
 COMMENT ON COLUMN sys_user.update_by IS '更新者';
@@ -35,6 +39,7 @@ CREATE TABLE IF NOT EXISTS sys_role (
     role_name    VARCHAR(64)  NOT NULL DEFAULT '',
     role_key     VARCHAR(100) NOT NULL DEFAULT '',
     status       VARCHAR(1)   NOT NULL DEFAULT '0',
+    data_scope   VARCHAR(20)  NOT NULL DEFAULT 'SELF',
     create_by    BIGINT,
     create_time  TIMESTAMP,
     update_by    BIGINT,
@@ -47,6 +52,8 @@ COMMENT ON COLUMN sys_role.role_id IS '角色ID（雪花算法）';
 COMMENT ON COLUMN sys_role.role_name IS '角色名称';
 COMMENT ON COLUMN sys_role.role_key IS '角色标识（如 admin、common）';
 COMMENT ON COLUMN sys_role.status IS '状态（0正常 1停用）';
+ALTER TABLE sys_role ADD COLUMN IF NOT EXISTS data_scope VARCHAR(20) NOT NULL DEFAULT 'SELF';
+COMMENT ON COLUMN sys_role.data_scope IS '数据范围（ALL=全部 DEPT=本部门 DEPT_AND_CHILD=本部门及以下 SELF=仅本人 CUSTOM=自定义）';
 COMMENT ON COLUMN sys_role.create_by IS '创建者';
 COMMENT ON COLUMN sys_role.create_time IS '创建时间';
 COMMENT ON COLUMN sys_role.update_by IS '更新者';
@@ -112,6 +119,42 @@ CREATE TABLE IF NOT EXISTS sys_role_menu (
 COMMENT ON TABLE sys_role_menu IS '角色菜单关联表';
 COMMENT ON COLUMN sys_role_menu.role_id IS '角色ID';
 COMMENT ON COLUMN sys_role_menu.menu_id IS '菜单ID';
+
+-- ============================================================
+-- 部门表
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sys_dept (
+    dept_id       BIGINT       PRIMARY KEY,
+    dept_name     VARCHAR(100) NOT NULL,
+    parent_id     BIGINT       NOT NULL DEFAULT 0,
+    sort_order    INTEGER      NOT NULL DEFAULT 0,
+    status        VARCHAR(1)   NOT NULL DEFAULT '0',
+    create_by     BIGINT,
+    create_time   TIMESTAMP,
+    update_by     BIGINT,
+    update_time   TIMESTAMP,
+    deleted       INTEGER      NOT NULL DEFAULT 0
+);
+
+COMMENT ON TABLE sys_dept IS '部门表';
+COMMENT ON COLUMN sys_dept.dept_id IS '部门ID';
+COMMENT ON COLUMN sys_dept.dept_name IS '部门名称';
+COMMENT ON COLUMN sys_dept.parent_id IS '父部门ID（0表示顶级部门）';
+COMMENT ON COLUMN sys_dept.sort_order IS '排序';
+COMMENT ON COLUMN sys_dept.status IS '状态（0正常 1停用）';
+COMMENT ON COLUMN sys_dept.deleted IS '逻辑删除（0存在 1删除）';
+
+-- ============================================================
+-- 角色-部门关联表（用于自定义数据范围）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sys_role_dept (
+    role_id   BIGINT NOT NULL,
+    dept_id   BIGINT NOT NULL,
+    PRIMARY KEY (role_id, dept_id)
+);
+
+COMMENT ON TABLE sys_role_dept IS '角色与部门关联表（自定义数据范围时使用）';
+
 
 -- =============================================
 -- 初始化数据
@@ -202,3 +245,23 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1013) ON CONFLICT DO NOT
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 1) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 100) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 1000) ON CONFLICT DO NOTHING;
+
+-- 初始化部门数据
+INSERT INTO sys_dept (dept_id, dept_name, parent_id, sort_order, status, create_by, create_time, deleted)
+VALUES
+(100, '总公司', 0, 0, '0', 1, NOW(), 0),
+(101, '技术部', 100, 1, '0', 1, NOW(), 0),
+(102, '市场部', 100, 2, '0', 1, NOW(), 0),
+(103, '前端组', 101, 1, '0', 1, NOW(), 0),
+(104, '后端组', 101, 2, '0', 1, NOW(), 0)
+ON CONFLICT DO NOTHING;
+
+-- 将 admin 用户归属到总公司
+UPDATE sys_user SET dept_id = 100 WHERE user_id = 1;
+-- 将 test 用户归属到技术部
+UPDATE sys_user SET dept_id = 101 WHERE user_id = 2;
+
+-- admin 角色拥有全部数据权限
+UPDATE sys_role SET data_scope = 'ALL' WHERE role_id = 1;
+-- 普通角色为本部门数据权限
+UPDATE sys_role SET data_scope = 'DEPT' WHERE role_id = 2;

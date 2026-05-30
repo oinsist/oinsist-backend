@@ -63,7 +63,8 @@ public class SysUserService {
      * @return 分页结果
      */
     public PageResult<SysUserVo> listUsers(PageQuery pageQuery) {
-        Page<SysUser> page = sysUserMapper.selectPage(pageQuery.buildPage(), new LambdaQueryWrapper<>());
+        // 调用自定义的 selectUserPage 方法，触发 @DataPermission 数据权限过滤
+        Page<SysUser> page = sysUserMapper.selectUserPage(pageQuery.buildPage(), new LambdaQueryWrapper<>());
         // 将实体转换为 VO，排除密码字段
         Page<SysUserVo> voPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         List<SysUserVo> voList = page.getRecords().stream().map(this::toVo).toList();

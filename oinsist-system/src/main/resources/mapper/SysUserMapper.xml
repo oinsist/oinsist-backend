@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oinsist.system.mapper.SysUserMapper">
+
+    <!--
+        分页查询用户列表（带数据权限过滤）
+
+        为什么必须用 XML 自定义 SQL 而非直接调用 BaseMapper.selectPage：
+        DataPermissionHandler 通过 mappedStatementId 反射定位 Mapper 方法上的 @DataPermission 注解，
+        只有当 statement ID 与当前接口声明的方法名匹配时才能找到注解。
+        自定义 XML statement 的 ID 为 "selectUserPage"，对应 SysUserMapper 中声明的同名方法，
+        确保拦截器能正确获取注解并追加数据权限 WHERE 条件。
+
+        注意：
+        1. BaseEntity 的 @TableLogic 仅对 BaseMapper 内置方法生效，
+           自定义 SQL 必须手动添加 deleted = 0 条件，否则已删除数据会被查出。
+        2. ${ew.sqlSegment} 为 Wrapper 动态拼接的条件片段（如 status = '0'），
+           当前传入空 Wrapper 时该 <if> 不会命中，仅查全量未删除用户。
+        3. DataPermissionInterceptor 在 SQL 解析层面追加权限条件，
+           与此处手写的 WHERE 条件通过 AND 合并，互不冲突。
+    -->
+    <select id="selectUserPage" resultType="com.oinsist.system.domain.SysUser">
+        SELECT user_id, username, nickname, status, dept_id,
+               create_by, create_time, update_by, update_time
+        FROM sys_user
+        <where>
+            deleted = 0
+            <if test="ew != null and ew.sqlSegment != null and ew.sqlSegment != ''">
+                AND ${ew.sqlSegment}
+            </if>
+        </where>
+    </select>
+
+</mapper>

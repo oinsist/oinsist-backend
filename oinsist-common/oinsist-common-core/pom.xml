@@ -24,4 +24,13 @@
         原因：子模块若强行写 source=8/target=8，会与父级 release=21 冲突，
         IDE 解析时可能回退到极低的 language level，导致 lambda、Stream 等被误标红。
     -->
+
+    <dependencies>
+        <!-- Lombok：编译期代码生成，用于枚举类的 @Getter/@AllArgsConstructor 等注解 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
 </project>

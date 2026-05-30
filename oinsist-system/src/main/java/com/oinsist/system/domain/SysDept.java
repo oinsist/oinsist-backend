@@ -8,26 +8,26 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 角色实体
+ * 部门实体
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_role")
-public class SysRole extends BaseEntity {
+@TableName("sys_dept")
+public class SysDept extends BaseEntity {
 
-    /** 角色ID（雪花算法） */
+    /** 部门ID */
     @TableId(type = IdType.ASSIGN_ID)
-    private Long roleId;
+    private Long deptId;
 
-    /** 角色名称 */
-    private String roleName;
+    /** 部门名称 */
+    private String deptName;
 
-    /** 角色标识（如 admin、common） */
-    private String roleKey;
+    /** 父部门ID（0表示顶级部门） */
+    private Long parentId;
+
+    /** 排序 */
+    private Integer sortOrder;
 
     /** 状态（0正常 1停用） */
     private String status;
-
-    /** 数据范围（ALL=全部, CUSTOM=自定义, DEPT=本部门, DEPT_AND_CHILD=本部门及以下, SELF=仅本人） */
-    private String dataScope;
 }

@@ -30,4 +30,7 @@ public class SysUser extends BaseEntity {
 
     /** 状态（0正常 1停用） */
     private String status;
+
+    /** 部门ID */
+    private Long deptId;
 }

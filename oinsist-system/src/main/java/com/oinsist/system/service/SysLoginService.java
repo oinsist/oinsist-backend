@@ -74,6 +74,7 @@ public class SysLoginService {
         loginUser.setUserId(user.getUserId());
         loginUser.setUsername(user.getUsername());
         loginUser.setNickname(user.getNickname());
+        loginUser.setDeptId(user.getDeptId());
         loginUser.setRoleKeys(roleKeys);
         loginUser.setPermissions(permissions);
 

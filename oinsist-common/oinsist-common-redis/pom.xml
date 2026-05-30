@@ -42,6 +42,33 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- AOP：用于限流注解切面等横切逻辑 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- Web：幂等/防重切面需要 RequestContextHolder 获取请求上下文 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Servlet API：HttpServletRequest 等类型支持 -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Jackson：参数序列化为稳定 JSON 用于防重摘要计算，运行时由 spring-boot-starter-web 传递 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

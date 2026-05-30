@@ -96,4 +96,22 @@ public class RedisService {
         RBucket<?> bucket = redissonClient.getBucket(key);
         return bucket.isExists();
     }
+
+    /**
+     * 原子性设置值（仅当 key 不存在时写入）
+     * <p>
+     * 对应 Redis 的 SET key value NX EX/PX ttl 命令。
+     * 适用于幂等性控制、防重复提交等需要原子占位的场景。
+     * </p>
+     *
+     * @param key   缓存 key
+     * @param value 缓存值
+     * @param ttl   过期时间（必须大于 0，禁止产生永久 key）
+     * @param unit  时间单位
+     * @return true 表示写入成功（key 不存在），false 表示 key 已存在
+     */
+    public <T> boolean setIfAbsent(String key, T value, long ttl, TimeUnit unit) {
+        RBucket<T> bucket = redissonClient.getBucket(key);
+        return bucket.setIfAbsent(value, Duration.of(ttl, unit.toChronoUnit()));
+    }
 }

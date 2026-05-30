@@ -35,7 +35,10 @@ public enum ResultCode {
     NOT_FOUND(404, "请求资源不存在"),
 
     /** 请求方法不支持（如 POST 到只支持 GET 的接口） */
-    METHOD_NOT_ALLOWED(405, "请求方法不支持");
+    METHOD_NOT_ALLOWED(405, "请求方法不支持"),
+
+    /** 请求过于频繁（触发限流） */
+    TOO_MANY_REQUESTS(429, "请求过于频繁");
 
     private final int code;
     private final String msg;

@@ -153,6 +153,28 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1002, '用户修改', 100, 3, '', '', 'system:user:edit', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
 (1003, '用户删除', 100, 4, '', '', 'system:user:remove', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1004, '分配角色', 100, 5, '', '', 'system:user:assignRole', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+-- 角色管理按钮
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1005, '角色查询', 101, 1, '', '', 'system:role:query', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1006, '角色新增', 101, 2, '', '', 'system:role:add', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1007, '角色修改', 101, 3, '', '', 'system:role:edit', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1008, '角色删除', 101, 4, '', '', 'system:role:remove', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1009, '分配菜单', 101, 5, '', '', 'system:role:assignMenu', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+-- 菜单管理按钮
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1010, '菜单查询', 102, 1, '', '', 'system:menu:query', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1011, '菜单新增', 102, 2, '', '', 'system:menu:add', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1012, '菜单修改', 102, 3, '', '', 'system:menu:edit', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1013, '菜单删除', 102, 4, '', '', 'system:menu:remove', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
 
 -- 用户角色关联
 INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1) ON CONFLICT DO NOTHING;
@@ -167,6 +189,16 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1000) ON CONFLICT DO NOT
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1001) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1002) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1003) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1004) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1005) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1006) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1007) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1008) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1009) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1010) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1011) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1012) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1013) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 1) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 100) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 1000) ON CONFLICT DO NOTHING;

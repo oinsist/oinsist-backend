@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.oinsist</groupId>
+        <artifactId>oinsist-common</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>oinsist-common-satoken</artifactId>
+    <packaging>jar</packaging>
+
+    <name>oinsist-common-satoken</name>
+    <description>Sa-Token 认证鉴权基础能力（登录认证、Token 管理、权限校验、路由拦截）</description>
+
+    <dependencies>
+        <!-- 基础常量、工具类 -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-core</artifactId>
+        </dependency>
+
+        <!-- Sa-Token：轻量级权限认证框架，提供登录、鉴权、路由拦截等核心能力 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+        </dependency>
+
+        <!-- Sa-Token 整合 Redis（Jackson 序列化）：将 Token 持久化到 Redis，实现分布式会话共享 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-jackson</artifactId>
+        </dependency>
+
+        <!-- Commons Pool2：Redis 连接池必须依赖，Sa-Token Redis 集成底层需要连接池支持 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+
+        <!-- Spring Web：提供 @RestControllerAdvice、WebMvcConfigurer 等注解/接口支持 -->
+        <!-- 标记为 optional：仅本模块编译时可见，不会传递给下游依赖方（如 oinsist-system），
+             避免 system 模块意外引入 Tomcat/Servlet 容器。
+             运行时由 oinsist-admin 通过 oinsist-common-web 模块统一引入。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

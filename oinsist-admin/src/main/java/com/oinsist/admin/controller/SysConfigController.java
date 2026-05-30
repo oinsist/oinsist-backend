@@ -1,5 +1,6 @@
 package com.oinsist.admin.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.oinsist.common.core.domain.R;
 import com.oinsist.common.mybatis.domain.PageQuery;
@@ -50,6 +51,7 @@ public class SysConfigController {
      * 逻辑删除拦截器会自动追加 WHERE deleted = 0 条件。
      * </p>
      */
+    @SaCheckPermission("system:config:list")
     @GetMapping("/list")
     public R<PageResult<SysConfig>> list(PageQuery pageQuery) {
         IPage<SysConfig> page = sysConfigMapper.selectPage(pageQuery.buildPage(), null);

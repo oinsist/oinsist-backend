@@ -49,6 +49,16 @@
         </dependency>
 
         <!--
+            【依赖 common-satoken】
+            SysLoginService 需要调用 LoginHelper 执行登录/退出操作，
+            以及使用 LoginUser 构建登录上下文，因此需引入 Sa-Token 基础能力模块。
+        -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-satoken</artifactId>
+        </dependency>
+
+        <!--
             【Spring Context】
             system 模块需要 Spring IoC 容器的能力（@Service、@Autowired 等注解），
             但不需要完整的 Web 运行时（Tomcat、MVC 等）。
@@ -58,6 +68,26 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!--
+            【密码加密】
+            仅引入 spring-security-crypto 模块获得 BCryptPasswordEncoder，
+            不引入完整 Spring Security 框架，保持认证体系由 Sa-Token 统一管控。
+        -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
+        <!--
+            【参数校验】
+            LoginBody 等请求体使用 @NotBlank 等 Jakarta Validation 注解，
+            需要引入 validation-api（编译期即可，运行时由 admin 模块的 starter-validation 提供实现）。
+        -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
         <!-- Lombok：编译期代码生成，用于实体类的 @Data 等注解 -->

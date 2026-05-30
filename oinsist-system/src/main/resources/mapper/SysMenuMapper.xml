@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oinsist.system.mapper.SysMenuMapper">
+
+    <!-- 根据用户ID查询权限标识集合 -->
+    <select id="selectPermsByUserId" resultType="java.lang.String">
+        SELECT DISTINCT m.perms
+        FROM sys_menu m
+        INNER JOIN sys_role_menu rm ON rm.menu_id = m.menu_id
+        INNER JOIN sys_user_role ur ON ur.role_id = rm.role_id
+        WHERE ur.user_id = #{userId}
+          AND m.status = '0'
+          AND m.deleted = 0
+          AND m.perms != ''
+    </select>
+
+    <!-- 查询所有正常状态的目录和菜单（超级管理员用） -->
+    <select id="selectMenuTreeAll" resultType="com.oinsist.system.domain.SysMenu">
+        SELECT menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon
+        FROM sys_menu
+        WHERE menu_type IN ('M', 'C')
+          AND status = '0'
+          AND visible = '0'
+          AND deleted = 0
+        ORDER BY parent_id, order_num
+    </select>
+
+    <!-- 根据用户ID查询可访问的菜单树（目录+菜单，不含按钮） -->
+    <select id="selectMenuTreeByUserId" resultType="com.oinsist.system.domain.SysMenu">
+        SELECT DISTINCT m.menu_id, m.menu_name, m.parent_id, m.order_num, m.path,
+                        m.component, m.perms, m.menu_type, m.visible, m.status, m.icon
+        FROM sys_menu m
+        INNER JOIN sys_role_menu rm ON rm.menu_id = m.menu_id
+        INNER JOIN sys_user_role ur ON ur.role_id = rm.role_id
+        WHERE ur.user_id = #{userId}
+          AND m.menu_type IN ('M', 'C')
+          AND m.status = '0'
+          AND m.visible = '0'
+          AND m.deleted = 0
+        ORDER BY m.parent_id, m.order_num
+    </select>
+
+</mapper>

@@ -80,6 +80,12 @@
             <artifactId>oinsist-common-redis</artifactId>
         </dependency>
 
+        <!-- Sa-Token 认证鉴权基础能力 -->
+        <dependency>
+            <groupId>com.oinsist</groupId>
+            <artifactId>oinsist-common-satoken</artifactId>
+        </dependency>
+
         <!-- PostgreSQL JDBC 驱动（仅运行时需要） -->
         <dependency>
             <groupId>org.postgresql</groupId>

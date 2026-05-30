@@ -1,7 +1,10 @@
 package com.oinsist.common.mybatis.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.oinsist.common.core.service.CurrentUserProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -15,17 +18,29 @@ import java.time.LocalDateTime;
  * <p>
  * 工作原理：MP 在执行 SQL 前会检查实体中带有 {@code @TableField(fill = ...)} 注解的字段，
  * 若满足填充策略条件，则回调本处理器的 insertFill / updateFill 方法进行自动赋值。
+ * <p>
+ * 解耦设计：通过注入 {@link CurrentUserProvider} 接口获取当前用户ID，
+ * 而非直接依赖具体认证框架（如 Sa-Token 的 LoginHelper），
+ * 使持久层基础能力与认证实现完全解耦。
  */
+@Slf4j
 @Component
 public class MybatisMetaObjectHandler implements MetaObjectHandler {
+
+    /**
+     * 当前用户提供者（可选注入）
+     * <p>
+     * 使用 @Autowired(required = false)：
+     * 当项目未引入认证模块时（如纯单元测试），不会因为缺少实现而启动失败。
+     * </p>
+     */
+    @Autowired(required = false)
+    private CurrentUserProvider currentUserProvider;
 
     /**
      * 插入时自动填充
      * <p>
      * 使用 strictInsertFill（严格模式）：仅当实体属性值为 null 时才执行填充。
-     * 与普通 insertFill 的区别：
-     * - strictInsertFill：属性有值则跳过，不会覆盖业务层手动设置的值
-     * - 非 strict 模式（setFieldValByName）：无论属性是否有值都会强制覆盖
      * 严格模式更安全，避免意外覆盖业务层的定制赋值。
      *
      * @param metaObject 元数据对象，封装了当前待插入的实体信息
@@ -35,8 +50,12 @@ public class MybatisMetaObjectHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "createTime", LocalDateTime::now, LocalDateTime.class);
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime::now, LocalDateTime.class);
 
-        // createBy / updateBy 为预留字段，当前阶段不做空值填充，避免误导读者以为已完成用户字段填充。
-        // 待后续 Sa-Token 认证模块（P04）接入后，通过登录上下文（StpUtil.getLoginIdAsLong()）获取当前用户并填充。
+        // 填充创建者/更新者
+        Long userId = getCurrentUserId();
+        if (userId != null) {
+            this.strictInsertFill(metaObject, "createBy", () -> userId, Long.class);
+            this.strictInsertFill(metaObject, "updateBy", () -> userId, Long.class);
+        }
     }
 
     /**
@@ -48,7 +67,21 @@ public class MybatisMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime::now, LocalDateTime.class);
 
-        // updateBy 为预留字段，当前阶段不做空值填充，避免误导读者以为已完成用户字段填充。
-        // 待后续 Sa-Token 认证模块（P04）接入后，通过登录上下文获取当前用户并填充。
+        Long userId = getCurrentUserId();
+        if (userId != null) {
+            this.strictUpdateFill(metaObject, "updateBy", () -> userId, Long.class);
+        }
+    }
+
+    /**
+     * 安全获取当前登录用户ID
+     *
+     * @return 当前登录用户ID，未登录或未配置 Provider 时返回 null
+     */
+    private Long getCurrentUserId() {
+        if (currentUserProvider == null) {
+            return null;
+        }
+        return currentUserProvider.getUserId();
     }
 }

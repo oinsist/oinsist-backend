@@ -42,14 +42,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * <ul>
  *   <li>Spring 会按异常类型的精确度进行匹配：越具体的异常类型越优先被处理。
  *       例如 {@code MethodArgumentNotValidException} 比 {@code Exception} 更精确，会被优先匹配。</li>
- *   <li>使用 {@code @Order(Ordered.HIGHEST_PRECEDENCE)} 确保在存在多个 ControllerAdvice 时，
- *       本处理器拥有最高优先级，避免被其他低优先级的通用处理器抢先拦截。</li>
+ *   <li>使用 {@code @Order(Ordered.HIGHEST_PRECEDENCE + 10)} 确保本处理器优先级略低于
+ *       Sa-Token 认证异常处理器（{@code SaTokenExceptionHandler}，Order = HIGHEST_PRECEDENCE）。
+ *       这样当 Sa-Token 抛出的 NotLoginException 等异常传入时，Sa-Token 处理器会优先匹配，
+ *       避免被本处理器的 Exception 兜底 handler 错误截获而返回 500。</li>
  * </ul>
  *
  * @author oinsist
  */
 @Slf4j
-@Order(Ordered.HIGHEST_PRECEDENCE)
+// 优先级低于 SaTokenExceptionHandler（HIGHEST_PRECEDENCE），确保认证异常由 Sa-Token 处理器优先捕获
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

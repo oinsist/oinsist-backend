@@ -46,3 +46,22 @@ mybatis-plus:
     # 开启驼峰命名映射（数据库下划线 -> Java驼峰）
     map-underscore-to-camel-case: true
 
+# ==================== Sa-Token 认证框架配置 ====================
+# 设计说明：Sa-Token 通过 application.yml 配置与代码零耦合的认证策略，
+# 不同环境可通过 Profile 覆盖（如生产环境缩短 Token 有效期、关闭日志）。
+sa-token:
+  # Token 名称（同时也是 Cookie 名称、Header 参数名）
+  token-name: Authorization
+  # Token 有效期（单位：秒），默认 30 天，-1 代表永不过期
+  timeout: 2592000
+  # Token 最低活跃频率（单位：秒），超过此时间未访问则 Token 过期，-1 代表不限制
+  active-timeout: -1
+  # 是否允许同一账号多地同时登录（为 true 时允许同时在线）
+  is-concurrent: true
+  # 在多人登录同一账号时，是否共用一个 Token
+  is-share: true
+  # Token 前缀：生产环境建议开启（格式如 "Bearer xxx"），P05 学习阶段暂不启用以简化调试
+  # token-prefix: Bearer
+  # 是否输出操作日志（开发阶段开启便于调试）
+  is-log: false
+

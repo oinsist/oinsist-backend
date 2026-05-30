@@ -23,5 +23,6 @@
         <module>oinsist-common-web</module>
         <module>oinsist-common-mybatis</module>
         <module>oinsist-common-redis</module>
+        <module>oinsist-common-satoken</module>
     </modules>
 </project>

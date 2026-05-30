@@ -74,6 +74,8 @@
         <redisson.version>4.4.0</redisson.version>
         <!-- Springdoc OpenAPI：Spring Boot 3 下的接口文档方案，替代旧版 Swagger/SpringFox -->
         <springdoc.version>3.0.3</springdoc.version>
+        <!-- Spring Security Crypto：仅引入 BCrypt 密码编码器，不引入完整 Spring Security 框架 -->
+        <spring-security.version>6.5.6</spring-security.version>
     </properties>
 
     <!--
@@ -105,6 +107,11 @@
             <dependency>
                 <groupId>com.oinsist</groupId>
                 <artifactId>oinsist-common-redis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oinsist</groupId>
+                <artifactId>oinsist-common-satoken</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -144,6 +151,18 @@
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-spring-boot3-starter</artifactId>
                 <version>${sa-token.version}</version>
+            </dependency>
+            <!-- Sa-Token 整合 Redis（Jackson 序列化）：将 Token 持久化到 Redis，支持分布式会话共享 -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-redis-jackson</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+            <!-- Spring Security Crypto：仅引入 BCrypt 密码编码器，不引入完整 Spring Security 框架 -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-crypto</artifactId>
+                <version>${spring-security.version}</version>
             </dependency>
             <!-- Redisson：分布式锁/限流的核心组件，配合 AOP 切面实现 @RedisLock 注解化能力 -->
             <dependency>

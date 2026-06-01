@@ -53,7 +53,7 @@ public class AuthController {
     public R<LoginVo> login(@Valid @RequestBody LoginBody loginBody, HttpServletRequest request) {
         String ip = getClientIp(request);
         String userAgent = request.getHeader("User-Agent");
-        LoginVo loginVo = sysLoginService.login(loginBody.getUsername(), loginBody.getPassword(), ip, userAgent);
+        LoginVo loginVo = sysLoginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getTenantId(), ip, userAgent);
         return R.ok(loginVo);
     }
 

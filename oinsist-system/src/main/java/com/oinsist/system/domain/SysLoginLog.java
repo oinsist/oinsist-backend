@@ -22,6 +22,11 @@ public class SysLoginLog {
     @TableId(type = IdType.ASSIGN_ID)
     private Long loginId;
 
+    /**
+     * 租户 ID（多租户行级隔离标识）
+     */
+    private Long tenantId;
+
     /** 用户ID（登录成功时记录） */
     private Long userId;
 

@@ -18,4 +18,10 @@ public class SysUserRole {
 
     /** 角色ID */
     private Long roleId;
+
+    /**
+     * 租户 ID（多租户行级隔离标识）
+     * 关联表也需要 tenant_id 以确保 TenantLineInnerInterceptor 能正确改写 SQL
+     */
+    private Long tenantId;
 }

@@ -45,6 +45,13 @@ public class LoginUser implements Serializable {
     private Long deptId;
 
     /**
+     * 租户 ID
+     * 标识用户所属租户，由登录时从 sys_user.tenant_id 读取并写入 Session
+     * 多租户拦截器通过 TenantProvider → LoginHelper 间接获取此值
+     */
+    private Long tenantId;
+
+    /**
      * 角色标识集合（如 ["admin"]）
      * <p>
      * 登录时一次性加载并存入 Session，避免每次鉴权都查库。

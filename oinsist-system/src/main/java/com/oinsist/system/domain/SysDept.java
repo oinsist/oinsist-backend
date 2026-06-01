@@ -25,6 +25,11 @@ public class SysDept extends BaseEntity {
     /** 父部门ID（0表示顶级部门） */
     private Long parentId;
 
+    /**
+     * 租户 ID（多租户行级隔离标识）
+     */
+    private Long tenantId;
+
     /** 排序 */
     private Integer sortOrder;
 

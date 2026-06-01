@@ -15,4 +15,9 @@ public class SysRoleDept {
 
     /** 部门ID */
     private Long deptId;
+
+    /**
+     * 租户 ID（多租户行级隔离标识）
+     */
+    private Long tenantId;
 }

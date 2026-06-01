@@ -30,4 +30,9 @@ public class SysRole extends BaseEntity {
 
     /** 数据范围（ALL=全部, CUSTOM=自定义, DEPT=本部门, DEPT_AND_CHILD=本部门及以下, SELF=仅本人） */
     private String dataScope;
+
+    /**
+     * 租户 ID（多租户行级隔离标识）
+     */
+    private Long tenantId;
 }

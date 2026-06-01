@@ -20,4 +20,13 @@ public class LoginBody {
      */
     @NotBlank(message = "用户密码不能为空")
     private String password;
+
+    /**
+     * 租户ID
+     * <p>
+     * 登录时标识用户所属租户，前端不传时默认使用 1（默认租户）。
+     * 多租户场景下，前端需在登录页面选择租户后传入对应值。
+     * </p>
+     */
+    private Long tenantId = 1L;
 }

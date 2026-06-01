@@ -102,4 +102,26 @@ public final class LoginHelper {
         }
         return (LoginUser) obj;
     }
+
+    /**
+     * 安全获取当前登录用户信息（不抛异常）
+     * <p>
+     * 未登录时返回 null，适用于租户提供者等非强制登录场景。
+     * 与 getLoginUser() 的区别：
+     * - getLoginUser()：强制要求登录态，用于业务接口等必须认证的场景
+     * - getLoginUserOrNull()：容忍未登录，用于拦截器/提供者等可能在登录前执行的场景
+     * </p>
+     *
+     * @return LoginUser 登录用户上下文，未登录时返回 null
+     */
+    public static LoginUser getLoginUserOrNull() {
+        try {
+            if (!StpUtil.isLogin()) {
+                return null;
+            }
+            return getLoginUser();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

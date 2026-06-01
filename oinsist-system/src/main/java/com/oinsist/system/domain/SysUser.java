@@ -40,6 +40,12 @@ public class SysUser extends BaseEntity {
     private Long deptId;
 
     /**
+     * 租户 ID（多租户行级隔离标识）
+     * 由 TenantLineInnerInterceptor 拦截器在查询/插入时自动处理
+     */
+    private Long tenantId;
+
+    /**
      * 邮箱（加密存储 + 脱敏输出）
      * <p>
      * - @EncryptField：语义标记，表示该字段入库加密

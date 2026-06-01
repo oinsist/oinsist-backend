@@ -1,5 +1,6 @@
 package com.oinsist.system.mapper;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -7,6 +8,7 @@ import com.oinsist.common.mybatis.annotation.DataPermission;
 import com.oinsist.system.domain.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * 用户 Mapper 接口
@@ -34,4 +36,23 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      */
     @DataPermission(deptIdColumn = "dept_id", userIdColumn = "create_by")
     Page<SysUser> selectUserPage(Page<SysUser> page, @Param("ew") Wrapper<SysUser> wrapper);
+
+    /**
+     * 登录专用：根据用户名和租户ID查询用户
+     *
+     * <p>设计说明：
+     * 登录时 Sa-Token Session 尚未建立，TenantProvider 无法获取租户ID，
+     * 因此必须使用 @InterceptorIgnore 跳过租户拦截器，在 SQL 中显式指定 tenant_id。</p>
+     *
+     * <p>安全约束：
+     * - 此方法仅限登录流程调用，禁止在其他业务场景使用
+     * - SQL 显式带 tenant_id 条件，不存在跨租户泄漏风险</p>
+     *
+     * @param username 用户账号
+     * @param tenantId 租户ID（从登录请求参数中获取）
+     * @return 用户实体，不存在则返回 null
+     */
+    @InterceptorIgnore(tenantLine = "1")
+    @Select("SELECT * FROM sys_user WHERE username = #{username} AND tenant_id = #{tenantId} AND deleted = 0")
+    SysUser selectByUsernameAndTenantId(@Param("username") String username, @Param("tenantId") Long tenantId);
 }

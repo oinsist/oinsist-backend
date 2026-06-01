@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import com.oinsist.common.core.service.TenantProvider;
 import com.oinsist.common.mybatis.datapermission.DataPermissionProvider;
 import com.oinsist.common.mybatis.datapermission.OinsistDataPermissionHandler;
+import com.oinsist.common.mybatis.handler.OinsistTenantLineHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,12 +29,13 @@ import org.springframework.context.annotation.Configuration;
  *
  * <h3>插件注册顺序说明（重要）：</h3>
  * <p>MyBatis-Plus 多插件场景下，InnerInterceptor 按添加顺序依次执行。
- * 数据权限拦截器必须在分页拦截器之前注册，原因：</p>
+ * 正确顺序为：多租户 → 数据权限 → 分页，原因：</p>
  * <ul>
- *     <li>数据权限拦截器先改写 SQL 的 WHERE 条件</li>
- *     <li>分页拦截器再基于改写后的 SQL 执行 COUNT 查询和 LIMIT 分页</li>
+ *     <li>多租户拦截器最先执行，确保所有 SQL 都先加上 tenant_id 隔离条件</li>
+ *     <li>数据权限拦截器在租户隔离基础上，进一步按用户角色/部门缩小可见范围</li>
+ *     <li>分页拦截器最后执行，基于已被租户+权限双重过滤的结果集计算 COUNT</li>
  * </ul>
- * <p>若顺序反过来，分页的 COUNT 将基于未过滤的全量数据计算，导致总数与实际列表不一致。</p>
+ * <p>若顺序错误（如分页先于租户），COUNT 将统计未隔离的全量数据，导致分页总数异常。</p>
  *
  * <h3>为什么放在 oinsist-common-mybatis 而不是各业务模块？</h3>
  * <ul>
@@ -47,6 +51,17 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class MybatisPlusConfig {
+
+    /**
+     * 租户提供者（可选依赖）。
+     * <p>
+     * 使用 required = false 注入，实现优雅降级：
+     * - 当业务模块提供了 TenantProvider 实现时，自动启用多租户 SQL 隔离
+     * - 当没有任何模块实现该接口时，跳过租户拦截器注册，系统以单租户模式运行
+     * </p>
+     */
+    @Autowired(required = false)
+    private TenantProvider tenantProvider;
 
     /**
      * 数据权限提供者（可选依赖）。
@@ -65,36 +80,53 @@ public class MybatisPlusConfig {
      * <p>{@link MybatisPlusInterceptor} 是 MP 3.4+ 引入的"插件主体"，
      * 它内部维护了一个 InnerInterceptor 链表，按添加顺序依次执行。</p>
      *
-     * <p>当前注册顺序：DataPermissionInterceptor → PaginationInnerInterceptor</p>
+     * <p>当前注册顺序：TenantLineInnerInterceptor → DataPermissionInterceptor → PaginationInnerInterceptor</p>
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
         /*
-         * 1. 数据权限拦截器（必须先于分页插件注册）
+         * ===== 拦截器注册顺序说明 =====
+         * MyBatis-Plus 的 InnerInterceptor 按注册顺序依次执行 SQL 改写。
+         * 正确顺序为：多租户 → 数据权限 → 分页
          *
-         * 工作原理 —— 拦截待执行的 SELECT 语句，根据当前用户的数据权限范围，
-         * 在 WHERE 条件中动态追加部门/用户级别的过滤条件，实现行级数据隔离。
+         * 原因：
+         * 1. 多租户拦截器最先执行，确保所有 SQL 都先加上 tenant_id 隔离条件，
+         *    后续拦截器（数据权限、分页）都在已隔离的租户数据范围内工作。
+         * 2. 数据权限拦截器在租户隔离基础上，进一步按用户角色/部门缩小可见范围。
+         * 3. 分页拦截器最后执行，其 COUNT 查询基于已被租户+权限双重过滤的结果集，
+         *    保证分页总数正确。
          *
-         * 仅当 DataPermissionProvider 存在时才注册，保证未配置数据权限的项目不受影响。
+         * 若顺序错误（如分页先于租户），COUNT 将统计未隔离的全量数据，导致分页总数异常。
          */
+
+        // ===== 注册顺序 1: 多租户拦截器 =====
+        // 工作原理 —— 拦截所有 SQL，通过 OinsistTenantLineHandler 获取当前租户 ID，
+        // 自动在 WHERE 条件追加 tenant_id = ? 实现租户级数据隔离。
+        // 仅当 TenantProvider 存在时才注册，保证未启用多租户的项目不受影响。
+        if (tenantProvider != null) {
+            TenantLineInnerInterceptor tenantInterceptor = new TenantLineInnerInterceptor();
+            tenantInterceptor.setTenantLineHandler(new OinsistTenantLineHandler(tenantProvider));
+            interceptor.addInnerInterceptor(tenantInterceptor);
+        }
+
+        // ===== 注册顺序 2: 数据权限拦截器 =====
+        // 工作原理 —— 拦截待执行的 SELECT 语句，根据当前用户的数据权限范围，
+        // 在 WHERE 条件中动态追加部门/用户级别的过滤条件，实现行级数据隔离。
+        // 仅当 DataPermissionProvider 存在时才注册，保证未配置数据权限的项目不受影响。
         if (dataPermissionProvider != null) {
             DataPermissionInterceptor dataPermissionInterceptor = new DataPermissionInterceptor();
             dataPermissionInterceptor.setDataPermissionHandler(new OinsistDataPermissionHandler(dataPermissionProvider));
             interceptor.addInnerInterceptor(dataPermissionInterceptor);
         }
 
-        /*
-         * 2. 分页插件（始终最后注册）
-         *
-         * 工作原理 —— 拦截执行的 SQL，在查询语句末尾自动改写为带 LIMIT/OFFSET 的分页语句，
-         * 同时额外执行一条 COUNT 查询以获取总记录数。
-         *
-         * 指定 DbType.POSTGRE_SQL 是为了让插件生成符合 PostgreSQL 方言的分页语法，
-         * 不同数据库的分页关键字有差异（如 MySQL 用 LIMIT，Oracle 用 ROWNUM），
-         * 明确指定可以避免 MP 在运行时动态探测数据库类型带来的额外开销。
-         */
+        // ===== 注册顺序 3: 分页插件（始终最后注册） =====
+        // 工作原理 —— 拦截执行的 SQL，在查询语句末尾自动改写为带 LIMIT/OFFSET 的分页语句，
+        // 同时额外执行一条 COUNT 查询以获取总记录数。
+        // 指定 DbType.POSTGRE_SQL 是为了让插件生成符合 PostgreSQL 方言的分页语法，
+        // 不同数据库的分页关键字有差异（如 MySQL 用 LIMIT，Oracle 用 ROWNUM），
+        // 明确指定可以避免 MP 在运行时动态探测数据库类型带来的额外开销。
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.POSTGRE_SQL));
 
         return interceptor;

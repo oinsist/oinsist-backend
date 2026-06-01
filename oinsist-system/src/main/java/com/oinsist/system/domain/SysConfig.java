@@ -22,6 +22,11 @@ public class SysConfig extends BaseEntity {
     @TableId(type = IdType.ASSIGN_ID)
     private Long configId;
 
+    /**
+     * 租户 ID（多租户行级隔离标识）
+     */
+    private Long tenantId;
+
     /** 配置名称 */
     private String configName;
 

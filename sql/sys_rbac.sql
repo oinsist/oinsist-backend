@@ -6,7 +6,7 @@
 -- 用户表
 CREATE TABLE IF NOT EXISTS sys_user (
     user_id      BIGINT       PRIMARY KEY,
-    username     VARCHAR(64)  NOT NULL UNIQUE,
+    username     VARCHAR(64)  NOT NULL,
     nickname     VARCHAR(64)  NOT NULL DEFAULT '',
     password     VARCHAR(200) NOT NULL DEFAULT '',
     status       VARCHAR(1)   NOT NULL DEFAULT '0',

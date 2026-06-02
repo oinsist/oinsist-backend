@@ -208,6 +208,28 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                 </plugin>
+                <!--
+                    maven-compiler-plugin：显式登记 Lombok 注解处理器路径。
+                    为什么必须显式声明：JDK 21 起 javac 默认不再隐式扫描 classpath 上的注解处理器
+                    （仅告警，未来版本将彻底禁用）。spring-boot-starter-parent 未把 Lombok 放进
+                    annotationProcessorPaths，因此纯命令行 mvn compile 不会生成 @Slf4j 的 log、
+                    @Data 的 getter 等，出现"找不到符号"。IDE（IntelliJ）靠自带 Lombok 插件能编译，
+                    但 CLI / CI 会失败。这里登记后，让命令行与 IDE 构建行为保持一致。
+                    版本由 spring-boot 父 POM 仲裁，故不写 version。
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

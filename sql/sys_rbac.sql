@@ -169,10 +169,15 @@ INSERT INTO sys_user (user_id, username, nickname, password, status, create_time
 (2, 'test', '测试用户', '$2a$10$BaHoMJFbJxMQHCafzczrx.jApiGbOjsumaIVMQmlfpPme/YhR3Iny', '0', NOW()) ON CONFLICT DO NOTHING;
 
 -- 初始角色
-INSERT INTO sys_role (role_id, role_name, role_key, status, create_time) VALUES
-(1, '超级管理员', 'admin', '0', NOW()) ON CONFLICT DO NOTHING;
-INSERT INTO sys_role (role_id, role_name, role_key, status, create_time) VALUES
-(2, '普通角色', 'common', '0', NOW()) ON CONFLICT DO NOTHING;
+-- data_scope 是数据权限拦截器的短路依据，必须在种子角色中显式写入。
+-- 尤其 admin 必须是 ALL，否则会被默认 SELF 误判为仅本人数据范围，
+-- 导致用户列表等接口进入不必要的权限表达式构建和嵌套角色查询路径。
+INSERT INTO sys_role (role_id, role_name, role_key, status, data_scope, create_time) VALUES
+(1, '超级管理员', 'admin', '0', 'ALL', NOW())
+ON CONFLICT (role_id) DO UPDATE SET data_scope = EXCLUDED.data_scope;
+INSERT INTO sys_role (role_id, role_name, role_key, status, data_scope, create_time) VALUES
+(2, '普通角色', 'common', '0', 'DEPT', NOW())
+ON CONFLICT (role_id) DO UPDATE SET data_scope = EXCLUDED.data_scope;
 
 -- 初始菜单
 -- 系统管理（目录）
@@ -261,6 +266,7 @@ UPDATE sys_user SET dept_id = 100 WHERE user_id = 1;
 -- 将 test 用户归属到技术部
 UPDATE sys_user SET dept_id = 101 WHERE user_id = 2;
 
+-- 历史库兜底：修正已经按旧种子导入、data_scope 仍为默认 SELF 的角色。
 -- admin 角色拥有全部数据权限
 UPDATE sys_role SET data_scope = 'ALL' WHERE role_id = 1;
 -- 普通角色为本部门数据权限

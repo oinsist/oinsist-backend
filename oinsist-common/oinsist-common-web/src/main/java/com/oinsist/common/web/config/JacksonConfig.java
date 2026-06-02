@@ -1,6 +1,8 @@
 package com.oinsist.common.web.config;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.oinsist.common.web.jackson.BigNumberSerializer;
 import com.oinsist.common.web.jackson.SensitiveSerializerModifier;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -15,7 +17,7 @@ import java.math.BigInteger;
  * 为什么使用 Jackson2ObjectMapperBuilderCustomizer 而非直接注册 ObjectMapper Bean：
  * 1. Spring Boot 自动配置已创建了 ObjectMapper，直接注册会覆盖其默认行为
  * 2. Customizer 是 Spring Boot 推荐的扩展方式，可叠加多个 Customizer
- * 3. 不影响 Spring Boot 自带的 JSR-310 日期序列化等默认配置
+ * 3. 统一维护全局 JSON 规则，避免各 Controller/VO 分散处理序列化细节
  */
 @Configuration
 public class JacksonConfig {
@@ -29,7 +31,9 @@ public class JacksonConfig {
      * <p>
      * 大整数模块：把 Long / long / BigInteger 交给 {@link BigNumberSerializer} 处理，
      * 解决雪花算法主键（19 位 Long）超出 JS 安全整数范围导致前端丢精度的问题。
-     * 两个模块在同一次 builder.modules(...) 中一并注册，保持原有 JSR-310 等默认行为不变。
+     * 注意：一旦调用 builder.modules(...)，就要把 JavaTimeModule 一并放进去。
+     * 这样 LocalDateTime 等 Java 8 时间类型才能正常输出 ISO 字符串，
+     * 避免用户列表这类包含 createTime 的响应在写 JSON 时抛 500。
      * </p>
      */
     @Bean
@@ -43,7 +47,9 @@ public class JacksonConfig {
             bigNumberModule.addSerializer(Long.TYPE, BigNumberSerializer.INSTANCE);
             bigNumberModule.addSerializer(BigInteger.class, BigNumberSerializer.INSTANCE);
 
-            builder.modules(sensitiveModule, bigNumberModule);
+            builder
+                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .modules(new JavaTimeModule(), sensitiveModule, bigNumberModule);
         };
     }
 }

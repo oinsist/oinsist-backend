@@ -8,6 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -68,10 +70,26 @@ class BigNumberSerializerTest {
                 objectMapper.writeValueAsString(new IdHolder(MAX_SAFE_INTEGER + 1, 0)));
     }
 
+    @Test
+    @DisplayName("LocalDateTime 序列化为 ISO 字符串，避免列表响应写 JSON 失败")
+    void localDateTimeShouldSerializeAsIsoString() throws Exception {
+        TimeHolder holder = new TimeHolder(LocalDateTime.of(2026, 6, 2, 16, 30, 0));
+
+        String json = objectMapper.writeValueAsString(holder);
+
+        assertEquals("{\"createTime\":\"2026-06-02T16:30:00\"}", json);
+    }
+
     /** 模拟典型实体：userId 为 Long（雪花主键），status 为 int（小整数，不应被波及） */
     @Data
     static class IdHolder {
         private final Long userId;
         private final int status;
+    }
+
+    /** 模拟用户列表 VO 中的创建时间字段 */
+    @Data
+    static class TimeHolder {
+        private final LocalDateTime createTime;
     }
 }

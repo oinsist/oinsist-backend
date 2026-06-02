@@ -9,7 +9,7 @@ import com.oinsist.common.core.service.TenantProvider;
 import com.oinsist.common.mybatis.datapermission.DataPermissionProvider;
 import com.oinsist.common.mybatis.datapermission.OinsistDataPermissionHandler;
 import com.oinsist.common.mybatis.handler.OinsistTenantLineHandler;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -53,26 +53,27 @@ import org.springframework.context.annotation.Configuration;
 public class MybatisPlusConfig {
 
     /**
-     * 租户提供者（可选依赖）。
+     * 使用 ObjectProvider 延迟获取，避免循环依赖：
      * <p>
-     * 使用 required = false 注入，实现优雅降级：
-     * - 当业务模块提供了 TenantProvider 实现时，自动启用多租户 SQL 隔离
-     * - 当没有任何模块实现该接口时，跳过租户拦截器注册，系统以单租户模式运行
+     * DataPermissionProvider / TenantProvider 的实现类依赖 Mapper，
+     * 而 Mapper 又依赖 sqlSessionFactory，sqlSessionFactory 依赖本配置类创建的拦截器。
+     * </p>
+     * <p>
+     * 延迟解析策略：
+     * ObjectProvider 引用传递给 Handler，Handler 在 SQL 实际执行时才调用 getIfAvailable()。
+     * 此时 sqlSessionFactory 早已创建完成，不会触发循环依赖。
+     * 同时实现优雅降级：当没有模块实现 Provider 接口时，Handler 内部处理 null 情况。
      * </p>
      */
-    @Autowired(required = false)
-    private TenantProvider tenantProvider;
+    private final ObjectProvider<TenantProvider> tenantProviderProvider;
+    private final ObjectProvider<DataPermissionProvider> dataPermissionProviderProvider;
 
-    /**
-     * 数据权限提供者（可选依赖）。
-     * <p>
-     * 使用 required = false 注入，实现优雅降级：
-     * - 当业务模块提供了 DataPermissionProvider 实现时，自动启用数据权限过滤
-     * - 当没有任何模块实现该接口时，跳过数据权限拦截器注册，不影响系统正常运行
-     * </p>
-     */
-    @Autowired(required = false)
-    private DataPermissionProvider dataPermissionProvider;
+    public MybatisPlusConfig(
+            ObjectProvider<TenantProvider> tenantProviderProvider,
+            ObjectProvider<DataPermissionProvider> dataPermissionProviderProvider) {
+        this.tenantProviderProvider = tenantProviderProvider;
+        this.dataPermissionProviderProvider = dataPermissionProviderProvider;
+    }
 
     /**
      * 注册 MyBatis-Plus 核心拦截器。
@@ -99,27 +100,28 @@ public class MybatisPlusConfig {
          *    保证分页总数正确。
          *
          * 若顺序错误（如分页先于租户），COUNT 将统计未隔离的全量数据，导致分页总数异常。
+         *
+         * 延迟解析策略：
+         * Handler 持有 ObjectProvider 而非直接持有 Provider 实例，
+         * 在 SQL 实际执行时才通过 getIfAvailable() 获取 Provider。
+         * 这样避免了 @Bean 创建阶段触发 Provider → Mapper → sqlSessionFactory 循环依赖。
          */
 
-        // ===== 注册顺序 1: 多租户拦截器 =====
+        // ===== 注册顺序 1: 多租户拦截器（无条件注册，Handler 内部处理 Provider 缺失） =====
         // 工作原理 —— 拦截所有 SQL，通过 OinsistTenantLineHandler 获取当前租户 ID，
         // 自动在 WHERE 条件追加 tenant_id = ? 实现租户级数据隔离。
-        // 仅当 TenantProvider 存在时才注册，保证未启用多租户的项目不受影响。
-        if (tenantProvider != null) {
-            TenantLineInnerInterceptor tenantInterceptor = new TenantLineInnerInterceptor();
-            tenantInterceptor.setTenantLineHandler(new OinsistTenantLineHandler(tenantProvider));
-            interceptor.addInnerInterceptor(tenantInterceptor);
-        }
+        TenantLineInnerInterceptor tenantInterceptor = new TenantLineInnerInterceptor();
+        tenantInterceptor.setTenantLineHandler(new OinsistTenantLineHandler(tenantProviderProvider));
+        interceptor.addInnerInterceptor(tenantInterceptor);
 
-        // ===== 注册顺序 2: 数据权限拦截器 =====
+        // ===== 注册顺序 2: 数据权限拦截器（无条件注册） =====
         // 工作原理 —— 拦截待执行的 SELECT 语句，根据当前用户的数据权限范围，
         // 在 WHERE 条件中动态追加部门/用户级别的过滤条件，实现行级数据隔离。
-        // 仅当 DataPermissionProvider 存在时才注册，保证未配置数据权限的项目不受影响。
-        if (dataPermissionProvider != null) {
-            DataPermissionInterceptor dataPermissionInterceptor = new DataPermissionInterceptor();
-            dataPermissionInterceptor.setDataPermissionHandler(new OinsistDataPermissionHandler(dataPermissionProvider));
-            interceptor.addInnerInterceptor(dataPermissionInterceptor);
-        }
+        DataPermissionInterceptor dataPermissionInterceptor = new DataPermissionInterceptor();
+        dataPermissionInterceptor.setDataPermissionHandler(
+            new OinsistDataPermissionHandler(dataPermissionProviderProvider)
+        );
+        interceptor.addInnerInterceptor(dataPermissionInterceptor);
 
         // ===== 注册顺序 3: 分页插件（始终最后注册） =====
         // 工作原理 —— 拦截执行的 SQL，在查询语句末尾自动改写为带 LIMIT/OFFSET 的分页语句，

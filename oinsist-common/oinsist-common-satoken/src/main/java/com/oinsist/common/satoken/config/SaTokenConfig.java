@@ -1,5 +1,6 @@
 package com.oinsist.common.satoken.config;
 
+import cn.dev33.satoken.context.SaHolder;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,15 @@ public class SaTokenConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
+        registry.addInterceptor(new SaInterceptor(handle -> {
+                    // 放行 CORS 预检请求：OPTIONS 不携带 Token 也不承载业务语义，
+                    // 若在此抛 NotLoginException，浏览器会判定预检失败，导致真正的跨域请求根本发不出去。
+                    // 鉴权应只针对真实业务请求执行。
+                    if ("OPTIONS".equalsIgnoreCase(SaHolder.getRequest().getMethod())) {
+                        return;
+                    }
+                    StpUtil.checkLogin();
+                }))
                 // 默认拦截所有路径
                 .addPathPatterns("/**")
                 // 放行白名单：不需要登录即可访问的路径

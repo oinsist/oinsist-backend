@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,12 +21,26 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class TenantIsolationTest {
 
+    /**
+     * 将 TenantProvider 包装为 ObjectProvider，适配 Handler 新的构造器签名
+     */
+    private ObjectProvider<TenantProvider> wrapProvider(TenantProvider provider) {
+        return new ObjectProvider<>() {
+            @Override
+            public TenantProvider getObject() { return provider; }
+            @Override
+            public TenantProvider getIfAvailable() { return provider; }
+            @Override
+            public TenantProvider getIfUnique() { return provider; }
+        };
+    }
+
     @Test
     @DisplayName("租户处理器：正常获取租户ID")
     void testGetTenantId_withValidTenant() {
         // 模拟已登录用户，tenantId = 100
         TenantProvider mockProvider = () -> 100L;
-        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(mockProvider);
+        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(wrapProvider(mockProvider));
         
         Expression expression = handler.getTenantId();
         assertInstanceOf(LongValue.class, expression);
@@ -37,7 +52,7 @@ class TenantIsolationTest {
     void testGetTenantId_whenNotLoggedIn() {
         // 模拟未登录场景
         TenantProvider mockProvider = () -> null;
-        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(mockProvider);
+        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(wrapProvider(mockProvider));
         
         Expression expression = handler.getTenantId();
         assertInstanceOf(LongValue.class, expression);
@@ -49,7 +64,7 @@ class TenantIsolationTest {
     @DisplayName("租户处理器：全局共享表被跳过")
     void testIgnoreTable_globalTables() {
         TenantProvider mockProvider = () -> 1L;
-        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(mockProvider);
+        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(wrapProvider(mockProvider));
         
         // 全局共享表应被忽略
         assertTrue(handler.ignoreTable("sys_menu"), "sys_menu 应为全局共享表");
@@ -68,7 +83,7 @@ class TenantIsolationTest {
     @DisplayName("租户处理器：租户字段名为 tenant_id")
     void testGetTenantIdColumn() {
         TenantProvider mockProvider = () -> 1L;
-        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(mockProvider);
+        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(wrapProvider(mockProvider));
         
         assertEquals("tenant_id", handler.getTenantIdColumn());
     }
@@ -108,7 +123,7 @@ class TenantIsolationTest {
     @DisplayName("租户处理器：ignoreTable 大小写不敏感验证")
     void testIgnoreTable_caseInsensitive() {
         TenantProvider mockProvider = () -> 1L;
-        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(mockProvider);
+        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(wrapProvider(mockProvider));
 
         // 验证大小写不敏感（MyBatis-Plus 传入的表名可能有大小写差异）
         assertTrue(handler.ignoreTable("SYS_MENU"), "大写表名应被忽略");
@@ -119,7 +134,7 @@ class TenantIsolationTest {
     @DisplayName("租户隔离表完整性：所有应隔离的表都不在白名单中")
     void testTenantIsolatedTables_notIgnored() {
         TenantProvider mockProvider = () -> 1L;
-        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(mockProvider);
+        OinsistTenantLineHandler handler = new OinsistTenantLineHandler(wrapProvider(mockProvider));
 
         // 所有租户隔离表必须被拦截器改写
         String[] isolatedTables = {

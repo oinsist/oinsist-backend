@@ -11,6 +11,7 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.ParenthesedExpressionList;
 import net.sf.jsqlparser.schema.Column;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -50,10 +51,19 @@ import java.util.stream.Collectors;
  */
 public class OinsistDataPermissionHandler implements DataPermissionHandler {
 
-    private final DataPermissionProvider provider;
+    /**
+     * 延迟解析策略：持有 ObjectProvider 而非直接持有 DataPermissionProvider 实例。
+     * <p>
+     * 原因：DataPermissionProvider 实现类（SysDataPermissionProvider）依赖 SysRoleMapper，
+     * 而 Mapper 依赖 sqlSessionFactory，sqlSessionFactory 依赖本配置类创建的拦截器。
+     * 将 ObjectProvider 下沉到 Handler 内部，在 SQL 实际执行时才通过 getIfAvailable() 获取 Provider，
+     * 此时 sqlSessionFactory 早已创建完成，不存在循环依赖问题。
+     * </p>
+     */
+    private final ObjectProvider<DataPermissionProvider> providerProvider;
 
-    public OinsistDataPermissionHandler(DataPermissionProvider provider) {
-        this.provider = provider;
+    public OinsistDataPermissionHandler(ObjectProvider<DataPermissionProvider> providerProvider) {
+        this.providerProvider = providerProvider;
     }
 
     /**
@@ -75,13 +85,20 @@ public class OinsistDataPermissionHandler implements DataPermissionHandler {
             return where;
         }
 
-        // 2. 如果用户拥有全部数据权限（ALL），直接放行不追加条件
+        // 2. 延迟解析 Provider：在 SQL 执行时才获取，避免 Bean 创建阶段循环依赖
+        DataPermissionProvider provider = providerProvider.getIfAvailable();
+        if (provider == null) {
+            // Provider 未注册（项目未配置数据权限），不追加条件，透传原始 SQL
+            return where;
+        }
+
+        // 3. 如果用户拥有全部数据权限（ALL），直接放行不追加条件
         if (provider.hasAllDataScope()) {
             return where;
         }
 
-        // 3. 构建数据权限条件表达式
-        Expression dataPermissionExpr = buildPermissionExpression(annotation);
+        // 4. 构建数据权限条件表达式
+        Expression dataPermissionExpr = buildPermissionExpression(annotation, provider);
 
         // ★ fail-closed 安全策略：注解命中但无法生成有效权限条件时，返回恒假条件 1=0
         // 场景：用户未登录、Token 过期、无有效角色等异常情况
@@ -118,7 +135,7 @@ public class OinsistDataPermissionHandler implements DataPermissionHandler {
      * 最终生成 (dept_id IN (...) OR create_by = ?) 的并集语义。
      * </p>
      */
-    private Expression buildPermissionExpression(DataPermission annotation) {
+    private Expression buildPermissionExpression(DataPermission annotation, DataPermissionProvider provider) {
         // ★ fail-closed 前置检查：无有效用户上下文时返回 null（由上层生成 1=0）
         Long currentUserId = provider.getCurrentUserId();
         if (currentUserId == null) {

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.oinsist.common.core.service.TenantProvider;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,16 @@ import java.util.List;
  */
 public class OinsistTenantLineHandler implements TenantLineHandler {
 
-    private final TenantProvider tenantProvider;
+    /**
+     * 延迟解析策略：持有 ObjectProvider 而非直接持有 TenantProvider 实例。
+     * <p>
+     * 原因：MybatisPlusConfig 中 mybatisPlusInterceptor() 是在 sqlSessionFactory 创建阶段调用的，
+     * 如果此时直接注入 TenantProvider（其实现类依赖 Mapper → sqlSessionFactory），会触发循环依赖。
+     * 将 ObjectProvider 下沉到 Handler 内部，在 SQL 实际执行时才通过 getIfAvailable() 获取 Provider，
+     * 此时 sqlSessionFactory 早已创建完成，不存在循环依赖问题。
+     * </p>
+     */
+    private final ObjectProvider<TenantProvider> tenantProviderProvider;
 
     /**
      * 全局共享表白名单
@@ -46,8 +56,8 @@ public class OinsistTenantLineHandler implements TenantLineHandler {
         "sys_tenant"      // 租户表本身（管理所有租户）
     );
 
-    public OinsistTenantLineHandler(TenantProvider tenantProvider) {
-        this.tenantProvider = tenantProvider;
+    public OinsistTenantLineHandler(ObjectProvider<TenantProvider> tenantProviderProvider) {
+        this.tenantProviderProvider = tenantProviderProvider;
     }
 
     /**
@@ -65,6 +75,11 @@ public class OinsistTenantLineHandler implements TenantLineHandler {
      */
     @Override
     public Expression getTenantId() {
+        TenantProvider tenantProvider = tenantProviderProvider.getIfAvailable();
+        if (tenantProvider == null) {
+            // Provider 未注册（项目未启用多租户），返回 0（fail-closed）
+            return new LongValue(0L);
+        }
         Long tenantId = tenantProvider.getTenantId();
         // 未登录场景下 tenantId 可能为 null
         // 此时返回 0 值，确保不会匹配到任何真实租户数据（fail-closed）

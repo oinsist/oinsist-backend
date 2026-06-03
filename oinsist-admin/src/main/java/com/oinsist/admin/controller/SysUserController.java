@@ -68,6 +68,13 @@ public class SysUserController {
         return R.ok();
     }
 
+    /** 查询用户当前角色ID集合，用于分配角色弹窗预勾选 */
+    @SaCheckPermission("system:user:query")
+    @GetMapping("/{userId}/roleIds")
+    public R<List<Long>> roleIds(@PathVariable Long userId) {
+        return R.ok(sysUserService.listRoleIdsByUserId(userId));
+    }
+
     /** 分配角色 */
     @SaCheckPermission("system:user:assignRole")
     @OperLog(title = "用户管理", businessType = BusinessType.GRANT)

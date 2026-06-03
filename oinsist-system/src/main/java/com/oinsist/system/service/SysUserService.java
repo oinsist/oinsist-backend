@@ -87,6 +87,24 @@ public class SysUserService {
     }
 
     /**
+     * 查询用户当前已分配的角色ID集合
+     * <p>
+     * 该接口服务于前端"分配角色"弹窗的预勾选场景，只读取 sys_user_role 关联表，
+     * 不额外联查角色详情，保持查询路径简单清晰。
+     * </p>
+     *
+     * @param userId 用户ID
+     * @return 当前用户已绑定的角色ID集合
+     */
+    public List<Long> listRoleIdsByUserId(Long userId) {
+        return sysUserRoleMapper.selectList(
+                new LambdaQueryWrapper<SysUserRole>()
+                        .select(SysUserRole::getRoleId)
+                        .eq(SysUserRole::getUserId, userId)
+        ).stream().map(SysUserRole::getRoleId).toList();
+    }
+
+    /**
      * 新增用户
      * <p>
      * 业务规则：

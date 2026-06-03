@@ -21,6 +21,7 @@ public class LoginBody {
     @NotBlank(message = "用户密码不能为空")
     private String password;
 
+
     /**
      * 租户ID
      * <p>

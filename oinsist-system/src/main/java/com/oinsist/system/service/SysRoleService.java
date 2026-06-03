@@ -75,6 +75,24 @@ public class SysRoleService {
     }
 
     /**
+     * 查询角色当前已分配的菜单ID集合
+     * <p>
+     * 该接口服务于前端"分配菜单"弹窗的预勾选场景，只读取 sys_role_menu 关联表，
+     * 不额外联查菜单详情，保持查询路径简单清晰。
+     * </p>
+     *
+     * @param roleId 角色ID
+     * @return 当前角色已绑定的菜单ID集合
+     */
+    public List<Long> listMenuIdsByRoleId(Long roleId) {
+        return sysRoleMenuMapper.selectList(
+                new LambdaQueryWrapper<SysRoleMenu>()
+                        .select(SysRoleMenu::getMenuId)
+                        .eq(SysRoleMenu::getRoleId, roleId)
+        ).stream().map(SysRoleMenu::getMenuId).toList();
+    }
+
+    /**
      * 新增角色
      * <p>
      * 新增前校验 roleKey 唯一性：roleKey 是权限编码的唯一标识，

@@ -41,6 +41,13 @@ public class SysRoleController {
         return R.ok(sysRoleService.selectById(roleId));
     }
 
+    /** 查询角色当前菜单ID集合，用于分配菜单弹窗预勾选 */
+    @SaCheckPermission("system:role:query")
+    @GetMapping("/{roleId}/menuIds")
+    public R<List<Long>> menuIds(@PathVariable Long roleId) {
+        return R.ok(sysRoleService.listMenuIdsByRoleId(roleId));
+    }
+
     /** 新增角色 */
     @SaCheckPermission("system:role:add")
     @OperLog(title = "角色管理", businessType = BusinessType.INSERT)

@@ -11,15 +11,15 @@
 
 -- 租户表：记录系统中的所有租户信息，主键使用雪花算法生成
 CREATE TABLE IF NOT EXISTS sys_tenant (
-    tenant_id   BIGINT       PRIMARY KEY,             -- 租户ID（雪花算法）
-    tenant_name VARCHAR(100) NOT NULL,                -- 租户名称
-    contact     VARCHAR(50),                          -- 联系人
-    status      CHAR(1)      NOT NULL DEFAULT '0',    -- 状态（0正常 1停用）
-    create_by   BIGINT,                               -- 创建者
-    create_time TIMESTAMP    DEFAULT CURRENT_TIMESTAMP, -- 创建时间
-    update_by   BIGINT,                               -- 更新者
-    update_time TIMESTAMP    DEFAULT CURRENT_TIMESTAMP, -- 更新时间
-    deleted     INTEGER      DEFAULT 0                -- 逻辑删除标志（0正常 1删除）
+                                          tenant_id   BIGINT       PRIMARY KEY,             -- 租户ID（雪花算法）
+                                          tenant_name VARCHAR(100) NOT NULL,                -- 租户名称
+                                          contact     VARCHAR(50),                          -- 联系人
+                                          status      CHAR(1)      NOT NULL DEFAULT '0',    -- 状态（0正常 1停用）
+                                          create_by   BIGINT,                               -- 创建者
+                                          create_time TIMESTAMP    DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+                                          update_by   BIGINT,                               -- 更新者
+                                          update_time TIMESTAMP    DEFAULT CURRENT_TIMESTAMP, -- 更新时间
+                                          deleted     INTEGER      DEFAULT 0                -- 逻辑删除标志（0正常 1删除）
 );
 
 COMMENT ON TABLE sys_tenant IS '租户表';
@@ -118,3 +118,6 @@ CREATE INDEX IF NOT EXISTS idx_sys_login_log_tenant ON sys_login_log(tenant_id);
 INSERT INTO sys_tenant (tenant_id, tenant_name, contact, status)
 VALUES (1, '默认租户', '系统管理员', '0')
 ON CONFLICT (tenant_id) DO NOTHING;
+
+-- 租户名称保持全局唯一，避免登录下拉出现同名租户导致选择歧义
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sys_tenant_name ON sys_tenant(tenant_name) WHERE deleted = 0;

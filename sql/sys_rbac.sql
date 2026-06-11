@@ -192,6 +192,9 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 -- 菜单管理（菜单）
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
 (102, '菜单管理', 1, 3, 'menu', 'system/menu/index', 'system:menu:list', 'C', '0', '0', 'tree-table', NOW()) ON CONFLICT DO NOTHING;
+-- 租户管理（菜单）
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(105, '租户管理', 1, 6, 'tenant', 'system/tenant/index', 'system:tenant:list', 'C', '0', '0', 'tenant', NOW()) ON CONFLICT DO NOTHING;
 -- 用户管理按钮
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
 (1000, '用户查询', 100, 1, '', '', 'system:user:query', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
@@ -223,6 +226,15 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1012, '菜单修改', 102, 3, '', '', 'system:menu:edit', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
 (1013, '菜单删除', 102, 4, '', '', 'system:menu:remove', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+-- 租户管理按钮
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1050, '租户查询', 105, 1, '', '', 'system:tenant:query', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1051, '租户新增', 105, 2, '', '', 'system:tenant:add', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1052, '租户修改', 105, 3, '', '', 'system:tenant:edit', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, perms, menu_type, visible, status, icon, create_time) VALUES
+(1053, '租户删除', 105, 4, '', '', 'system:tenant:remove', 'F', '0', '0', '', NOW()) ON CONFLICT DO NOTHING;
 
 -- 用户角色关联
 INSERT INTO sys_user_role (user_id, role_id) VALUES (1, 1) ON CONFLICT DO NOTHING;
@@ -233,6 +245,7 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1) ON CONFLICT DO NOTHIN
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 100) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 101) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 102) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 105) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1000) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1001) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1002) ON CONFLICT DO NOTHING;
@@ -247,6 +260,10 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1010) ON CONFLICT DO NOT
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1011) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1012) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1013) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1050) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1051) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1052) ON CONFLICT DO NOTHING;
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES (1, 1053) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 1) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 100) ON CONFLICT DO NOTHING;
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES (2, 1000) ON CONFLICT DO NOTHING;

@@ -6,9 +6,11 @@ import com.oinsist.common.satoken.helper.LoginHelper;
 import com.oinsist.system.domain.LoginBody;
 import com.oinsist.system.domain.LoginVo;
 import com.oinsist.system.domain.vo.RouterVo;
+import com.oinsist.system.domain.vo.TenantOptionVo;
 import com.oinsist.system.domain.vo.UserInfoVo;
 import com.oinsist.system.service.SysLoginService;
 import com.oinsist.system.service.SysMenuService;
+import com.oinsist.system.service.SysTenantService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class AuthController {
 
     private final SysLoginService sysLoginService;
     private final SysMenuService sysMenuService;
+    private final SysTenantService sysTenantService;
 
     /**
      * 用户登录
@@ -55,6 +58,17 @@ public class AuthController {
         String userAgent = request.getHeader("User-Agent");
         LoginVo loginVo = sysLoginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getTenantId(), ip, userAgent);
         return R.ok(loginVo);
+    }
+
+    /**
+     * 获取登录页可选租户
+     *
+     * <p>该接口在登录前调用，只返回正常状态的租户 ID 与名称。
+     * 后续真正的数据隔离仍以登录时写入 Session 的 tenantId 为准，不信任请求头临时切换。</p>
+     */
+    @GetMapping("/tenants")
+    public R<List<TenantOptionVo>> tenants() {
+        return R.ok(sysTenantService.listAvailableTenants());
     }
 
     /**

@@ -47,6 +47,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         // ---------- 认证相关 ----------
                         "/auth/login",      // 登录接口（未登录才需要调用）
+                        "/auth/tenants",    // 登录页租户下拉选项，只暴露正常租户的 ID 与名称
                         "/auth/logout",     // 退出接口（放行让前端无论如何都能调通，避免 Token 过期后无法退出）
 
                         // ---------- 接口文档相关 ----------
